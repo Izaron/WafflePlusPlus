@@ -7,4 +7,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_package(Clang REQUIRED CONFIG)
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Found Clang ${Clang_PACKAGE_VERSION}")
+
+add_subdirectory(bin)
+add_subdirectory(lib)
 add_subdirectory(modules)
