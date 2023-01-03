@@ -4,7 +4,6 @@
 
 #include <lib/module/registry.h>
 #include <lib/file/file_impl.h>
-#include <modules/enum_serializer/module.h>
 
 using namespace Waffle;
 

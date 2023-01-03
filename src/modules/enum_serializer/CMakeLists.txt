@@ -1,1 +1,1 @@
-add_library(enum_serializer STATIC module.cpp)
+add_library(enum_serializer OBJECT module.cpp)
