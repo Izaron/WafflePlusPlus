@@ -22,13 +22,20 @@ using namespace Waffle;
 //}
 
 int main(int argc, const char** argv) {
-    FileManager fileMgr{/*prefix=*/"."};
+    for (const auto& module : ModuleRegistry::GetModules()) {
+        llvm::errs() << "module " << module->Name() << " is available\n";
+    }
+
+    if (argc < 2) {
+        llvm::errs() << "please provide path!\n";
+        return 1;
+    }
+
+    FileManager fileMgr{argv[1]};
     Context ctx{
         .FileMgr = fileMgr,
     };
-    llvm::errs() << "list modules:\n";
     for (const auto& module : ModuleRegistry::GetModules()) {
-        llvm::errs() << "module " << module->Name() << " linked\n";
         module->Do(ctx);
     }
 }
