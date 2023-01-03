@@ -3,8 +3,11 @@
 #include "module.h"
 
 #include <span>
+#include <vector>
 
 namespace Waffle {
+
+inline std::vector<IModulePtr> MODULES;
 
 class ModuleRegistry {
 public:

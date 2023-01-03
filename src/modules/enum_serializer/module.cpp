@@ -2,7 +2,11 @@
 
 namespace Waffle {
 
-void EnumSerializerModule::Do(Context& /*context*/) {
+std::string_view EnumSerializerModule::Name() const {
+    return "enum_serializer";
+}
+
+void EnumSerializerModule::Do(Context& /*context*/) const {
     // ???
 }
 

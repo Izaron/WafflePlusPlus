@@ -4,7 +4,8 @@
 using namespace Waffle;
 
 struct DummyModule : IModule {
-    void Do(Context& /*context*/) override {};
+    std::string_view Name() const override { return ""; }
+    void Do(Context& /*context*/) const override {};
 };
 
 TEST(RegistryTest, AddModule) {

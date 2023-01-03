@@ -6,7 +6,8 @@ namespace Waffle {
 
 class EnumSerializerModule : public IModule {
 public:
-    void Do(Context& context) override;
+    std::string_view Name() const override;
+    void Do(Context& context) const override;
 };
 
 } // namespace Waffle

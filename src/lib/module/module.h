@@ -13,7 +13,8 @@ struct Context {
 class IModule {
 public:
     virtual ~IModule() = default;
-    virtual void Do(Context& context) = 0;
+    virtual std::string_view Name() const = 0;
+    virtual void Do(Context& context) const = 0;
 };
 
 using IModulePtr = std::unique_ptr<IModule>;
