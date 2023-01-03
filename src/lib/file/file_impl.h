@@ -1,7 +1,8 @@
 #pragma once
 
+#include <filesystem>
 #include <fstream>
-#include <unordered_map>
+#include <map>
 
 #include "i_file.h"
 
@@ -24,8 +25,8 @@ public:
     IFilePrinter& GetOrCreateFilePrinter(std::string_view filename) override;
 
 private:
-    std::string prefix_;
-    std::unordered_map<std::string, FilePrinter> printers_;
+    std::filesystem::path prefix_;
+    std::map<std::string, FilePrinter, std::less<>> printers_;
 };
 
 } // namespace waffle

@@ -12,14 +12,15 @@ void FilePrinter::Print(std::string_view s) {
 
 FileManager::FileManager(std::string prefix)
     : prefix_{prefix}
-{}
+{
+    std::filesystem::create_directories(prefix_);
+}
 
 IFilePrinter& FileManager::GetOrCreateFilePrinter(std::string_view filename) {
-    const std::string fullPath = prefix_ + "/" + std::string{filename};
-    if (const auto iter = printers_.find(fullPath); iter != printers_.end()) {
+    if (const auto iter = printers_.find(filename); iter != printers_.end()) {
         return iter->second;
     }
-    const auto [iter, _] = printers_.emplace(fullPath, std::ofstream{fullPath});
+    const auto [iter, _] = printers_.emplace(filename, std::ofstream{prefix_ / filename});
     return iter->second;
 }
 
