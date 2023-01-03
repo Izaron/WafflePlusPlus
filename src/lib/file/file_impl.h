@@ -6,7 +6,7 @@
 
 #include "i_file.h"
 
-namespace waffle {
+namespace Waffle {
 
 class FilePrinter : public IFilePrinter {
 public:
@@ -29,4 +29,4 @@ private:
     std::map<std::string, FilePrinter, std::less<>> printers_;
 };
 
-} // namespace waffle
+} // namespace Waffle

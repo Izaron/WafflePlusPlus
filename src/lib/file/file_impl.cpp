@@ -1,6 +1,6 @@
 #include "file_impl.h"
 
-namespace waffle {
+namespace Waffle {
 
 FilePrinter::FilePrinter(std::ofstream&& stream)
     : stream_{std::move(stream)}
@@ -24,4 +24,4 @@ IFilePrinter& FileManager::GetOrCreateFilePrinter(std::string_view filename) {
     return iter->second;
 }
 
-} // namespace waffle
+} // namespace Waffle

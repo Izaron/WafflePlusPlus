@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "file_impl.h"
 
-using namespace waffle;
+using namespace Waffle;
 
 static std::string Slurp(std::ifstream& in) {
     std::ostringstream sstr;

@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace waffle {
+namespace Waffle {
 
 class IFilePrinter {
 public:
@@ -24,4 +24,4 @@ public:
     virtual IFilePrinter& GetOrCreateFilePrinter(std::string_view filename) = 0;
 };
 
-} // namespace waffle
+} // namespace Waffle
