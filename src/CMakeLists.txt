@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(WafflePlusPlus VERSION 0.1 LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -15,3 +15,12 @@ message(STATUS "Found Clang ${Clang_PACKAGE_VERSION}")
 add_subdirectory(bin)
 add_subdirectory(lib)
 add_subdirectory(modules)
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.12.0
+)
+FetchContent_MakeAvailable(googletest)
+enable_testing()
