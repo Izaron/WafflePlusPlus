@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <vector>
 
 #include "i_file.h"
 
@@ -23,6 +24,7 @@ class FileManager : public IFileManager {
 public:
     explicit FileManager(std::string prefix);
     IFilePrinter& GetOrCreateFilePrinter(std::string_view filename) override;
+    std::vector<std::string> GetGeneratedFilesNames() const;
 
 private:
     std::filesystem::path prefix_;

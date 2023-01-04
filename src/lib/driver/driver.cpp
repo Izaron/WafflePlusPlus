@@ -94,6 +94,12 @@ int main(int argc, const char** argv) {
     clang::tooling::ClangTool tool(*db.get(), {filePath});
     if (tool.run(action.get())) {
         llvm::errs() << "some problems with file \"" << filePath << "\"\n";
+        return 1;
+    }
+
+    llvm::errs() << "generated files in directory \"" << outputDir << "\":\n";
+    for (const auto& name : fileManager.GetGeneratedFilesNames()) {
+        llvm::errs() << "++++ \"" << name << "\"\n";
     }
 
     return 0;

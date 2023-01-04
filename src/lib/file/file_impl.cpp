@@ -24,4 +24,12 @@ IFilePrinter& FileManager::GetOrCreateFilePrinter(std::string_view filename) {
     return iter->second;
 }
 
+std::vector<std::string> FileManager::GetGeneratedFilesNames() const {
+    std::vector<std::string> names;
+    for (const auto& iter : printers_) {
+        names.emplace_back(iter.first);
+    }
+    return names;
+}
+
 } // namespace Waffle
