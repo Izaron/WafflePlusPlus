@@ -68,6 +68,7 @@ clang::tooling::CommandLineArguments WaffleArgumentsAdjuster(
 {
     auto result = args;
     result.emplace_back("-fparse-all-comments");
+    result.emplace_back("-fcomment-block-commands=serializable");
     return result;
 }
 
@@ -109,7 +110,7 @@ int main(int argc, const char** argv) {
 
     llvm::errs() << "generated files in directory \"" << outputDir << "\":\n";
     for (const auto& name : fileManager.GetGeneratedFilesNames()) {
-        llvm::errs() << "++++ \"" << name << "\"\n";
+        llvm::errs() << "added \"" << name << "\"\n";
     }
 
     return 0;
