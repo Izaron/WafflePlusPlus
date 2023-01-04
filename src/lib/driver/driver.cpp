@@ -7,6 +7,31 @@
 
 using namespace Waffle;
 
+namespace {
+
+class WaffleASTConsumer : public clang::ASTConsumer {
+public:
+    WaffleASTConsumer(IFileManager& fileMgr, std::string_view inFile)
+        : FileMgr_{fileMgr}
+        , InFile_{inFile}
+    {}
+
+    void HandleTranslationUnit(clang::ASTContext &astContext) override {
+        Context ctx{
+            .FileMgr = FileMgr_,
+            .InFile = InFile_,
+            .AstContext = astContext,
+        };
+        for (const auto& module : ModuleRegistry::GetModules()) {
+            module->Do(ctx);
+        }
+    }
+
+private:
+    IFileManager& FileMgr_;
+    std::string_view InFile_;
+};
+
 class WaffleFrontendAction : public clang::ASTFrontendAction {
 public:
     WaffleFrontendAction(IFileManager& fileMgr)
@@ -16,8 +41,7 @@ public:
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
         clang::CompilerInstance& /*compiler*/, llvm::StringRef inFile) override
     {
-        llvm::errs() << "look " << inFile << "\n";
-        return nullptr;
+        return std::make_unique<WaffleASTConsumer>(FileMgr_, inFile);
     }
 
 private:
@@ -37,6 +61,8 @@ public:
 private:
     IFileManager& FileMgr_;
 };
+
+} // namespace
 
 int main(int argc, const char** argv) {
     for (const auto& module : ModuleRegistry::GetModules()) {
@@ -66,15 +92,9 @@ int main(int argc, const char** argv) {
     FileManager fileMgr{outputDir};
     auto action = std::make_unique<WaffleFrontendActionFactory>(fileMgr);
     clang::tooling::ClangTool tool(*db.get(), {filePath});
-    if (!tool.run(action.get())) {
-        llvm::errs() << "some problems...\n";
+    if (tool.run(action.get())) {
+        llvm::errs() << "some problems with file \"" << filePath << "\"\n";
     }
 
-    Context ctx{
-        .FileMgr = fileMgr,
-    };
-
-    for (const auto& module : ModuleRegistry::GetModules()) {
-        module->Do(ctx);
-    }
+    return 0;
 }

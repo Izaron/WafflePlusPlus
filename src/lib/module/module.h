@@ -4,10 +4,16 @@
 
 #include <memory>
 
+namespace clang {
+    class ASTContext;
+} // namespace clang
+
 namespace Waffle {
 
 struct Context {
     IFileManager& FileMgr;
+    std::string_view InFile;
+    clang::ASTContext& AstContext;
 };
 
 class IModule {
