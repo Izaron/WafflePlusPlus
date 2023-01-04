@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lib/file/i_file.h>
+#include <lib/file/file.h>
 
 #include <memory>
 

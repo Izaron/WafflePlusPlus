@@ -1,6 +1,8 @@
 #pragma once
 
+#include <memory>
 #include <string_view>
+#include <vector>
 
 namespace Waffle {
 
@@ -22,6 +24,9 @@ class IFileManager {
 public:
     virtual ~IFileManager() = default;
     virtual IFilePrinter& GetOrCreateFilePrinter(std::string_view filename) = 0;
+    virtual std::vector<std::string> GetGeneratedFilesNames() const = 0;
 };
+
+std::unique_ptr<IFileManager> BuildFileManager(std::string prefix);
 
 } // namespace Waffle

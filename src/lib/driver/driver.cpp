@@ -3,8 +3,8 @@
 #include <clang/Tooling/CompilationDatabase.h>
 #include <clang/Tooling/Tooling.h>
 
+#include <lib/file/file.h>
 #include <lib/module/registry.h>
-#include <lib/file/file_impl.h>
 
 using namespace Waffle;
 
@@ -99,8 +99,8 @@ int main(int argc, const char** argv) {
     }
     llvm::errs() << "loaded compile database with " << db->getAllFiles().size() << " files\n";
 
-    FileManager fileManager{outputDir};
-    auto action = std::make_unique<WaffleFrontendActionFactory>(fileManager);
+    auto fileManager = BuildFileManager(outputDir);
+    auto action = std::make_unique<WaffleFrontendActionFactory>(*fileManager);
     clang::tooling::ClangTool tool(*db.get(), {filePath});
     tool.appendArgumentsAdjuster(WaffleArgumentsAdjuster);
     if (tool.run(action.get())) {
@@ -109,7 +109,7 @@ int main(int argc, const char** argv) {
     }
 
     llvm::errs() << "generated files in directory \"" << outputDir << "\":\n";
-    for (const auto& name : fileManager.GetGeneratedFilesNames()) {
+    for (const auto& name : fileManager->GetGeneratedFilesNames()) {
         llvm::errs() << "added \"" << name << "\"\n";
     }
 

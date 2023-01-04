@@ -1,4 +1,4 @@
-add_library(file STATIC i_file.cpp file_impl.cpp)
+add_library(file STATIC file.cpp)
 
 enable_testing()
 add_executable(file_test file_test.cpp)
