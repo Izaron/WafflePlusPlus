@@ -8,19 +8,34 @@
 using namespace Waffle;
 
 class WaffleFrontendAction : public clang::ASTFrontendAction {
+public:
+    WaffleFrontendAction(IFileManager& fileMgr)
+        : FileMgr_{fileMgr}
+    {}
+
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
         clang::CompilerInstance& /*compiler*/, llvm::StringRef inFile) override
     {
         llvm::errs() << "look " << inFile << "\n";
         return nullptr;
     }
+
+private:
+    IFileManager& FileMgr_;
 };
 
 class WaffleFrontendActionFactory : public clang::tooling::FrontendActionFactory {
 public:
+    WaffleFrontendActionFactory(IFileManager& fileMgr)
+        : FileMgr_{fileMgr}
+    {}
+
     std::unique_ptr<clang::FrontendAction> create() override {
-        return std::make_unique<WaffleFrontendAction>();
+        return std::make_unique<WaffleFrontendAction>(FileMgr_);
     }
+
+private:
+    IFileManager& FileMgr_;
 };
 
 int main(int argc, const char** argv) {
@@ -48,13 +63,13 @@ int main(int argc, const char** argv) {
     }
     llvm::errs() << "loaded compile database with " << db->getAllFiles().size() << " files\n";
 
-    auto action = std::make_unique<WaffleFrontendActionFactory>();
+    FileManager fileMgr{outputDir};
+    auto action = std::make_unique<WaffleFrontendActionFactory>(fileMgr);
     clang::tooling::ClangTool tool(*db.get(), {filePath});
     if (!tool.run(action.get())) {
         llvm::errs() << "some problems...\n";
     }
 
-    FileManager fileMgr{outputDir};
     Context ctx{
         .FileMgr = fileMgr,
     };
