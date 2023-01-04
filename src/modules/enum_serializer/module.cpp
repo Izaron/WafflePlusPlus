@@ -1,6 +1,5 @@
 #include "module.h"
 
-#include <clang/AST/Comment.h>
 #include <clang/AST/RecursiveASTVisitor.h>
 
 using namespace Waffle;
@@ -15,30 +14,6 @@ public:
 
     bool VisitEnumDecl(clang::EnumDecl* decl) {
         decl->dump();
-        const auto* comment = Ctx_.AstContext.getCommentForDecl(decl, nullptr);
-        if (!comment) {
-            return true;
-        }
-
-        for (const auto* block : comment->getBlocks()) {
-            const auto* blockCommand = clang::dyn_cast_or_null<clang::comments::BlockCommandComment>(block);
-            if (!blockCommand) {
-                continue;
-            }
-            llvm::errs() << "COMMAND NAME: " << blockCommand->getCommandName(Ctx_.AstContext.getCommentCommandTraits()) << "\n";
-
-            const auto* paragraph = blockCommand->getParagraph();
-            if (!paragraph) {
-                continue;
-            }
-            for (const auto* child = paragraph->child_begin(); child != paragraph->child_end(); ++child) {
-                const auto* textComment = clang::dyn_cast_or_null<clang::comments::TextComment>(*child);
-                if (!textComment) {
-                    continue;
-                }
-                llvm::errs() << "GOT TEXT: " << textComment->getText() << "\n";
-            }
-        }
         return true;
     }
 
