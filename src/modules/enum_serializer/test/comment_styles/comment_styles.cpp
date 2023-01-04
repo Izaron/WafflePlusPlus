@@ -1,5 +1,7 @@
-enum class AlternateUrlTableError {
-  OK = 0,
-  OUT_OF_MEMORY = 1,
-  MALFORMED_INPUT = 2,
+// \serialize
+// \neinserialize
+enum class EColor {
+    Red, /* STRING:red */
+    Green, // \foo
+    Blue // \string blue
 };

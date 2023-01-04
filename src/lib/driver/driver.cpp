@@ -1,4 +1,5 @@
 #include <clang/Frontend/FrontendActions.h>
+#include <clang/Tooling/ArgumentsAdjusters.h>
 #include <clang/Tooling/CompilationDatabase.h>
 #include <clang/Tooling/Tooling.h>
 
@@ -62,6 +63,14 @@ private:
     IFileManager& FileManager_;
 };
 
+clang::tooling::CommandLineArguments WaffleArgumentsAdjuster(
+    const clang::tooling::CommandLineArguments& args, llvm::StringRef /*filename*/)
+{
+    auto result = args;
+    result.emplace_back("-fparse-all-comments");
+    return result;
+}
+
 } // namespace
 
 int main(int argc, const char** argv) {
@@ -92,6 +101,7 @@ int main(int argc, const char** argv) {
     FileManager fileManager{outputDir};
     auto action = std::make_unique<WaffleFrontendActionFactory>(fileManager);
     clang::tooling::ClangTool tool(*db.get(), {filePath});
+    tool.appendArgumentsAdjuster(WaffleArgumentsAdjuster);
     if (tool.run(action.get())) {
         llvm::errs() << "some problems with file \"" << filePath << "\"\n";
         return 1;
