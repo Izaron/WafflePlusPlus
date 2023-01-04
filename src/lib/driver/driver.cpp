@@ -11,14 +11,14 @@ namespace {
 
 class WaffleASTConsumer : public clang::ASTConsumer {
 public:
-    WaffleASTConsumer(IFileManager& fileMgr, std::string_view inFile)
-        : FileMgr_{fileMgr}
+    WaffleASTConsumer(IFileManager& fileManager, std::string_view inFile)
+        : FileManager_{fileManager}
         , InFile_{inFile}
     {}
 
     void HandleTranslationUnit(clang::ASTContext &astContext) override {
         Context ctx{
-            .FileMgr = FileMgr_,
+            .FileManager = FileManager_,
             .InFile = InFile_,
             .AstContext = astContext,
         };
@@ -28,38 +28,38 @@ public:
     }
 
 private:
-    IFileManager& FileMgr_;
+    IFileManager& FileManager_;
     std::string_view InFile_;
 };
 
 class WaffleFrontendAction : public clang::ASTFrontendAction {
 public:
-    WaffleFrontendAction(IFileManager& fileMgr)
-        : FileMgr_{fileMgr}
+    WaffleFrontendAction(IFileManager& fileManager)
+        : FileManager_{fileManager}
     {}
 
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
         clang::CompilerInstance& /*compiler*/, llvm::StringRef inFile) override
     {
-        return std::make_unique<WaffleASTConsumer>(FileMgr_, inFile);
+        return std::make_unique<WaffleASTConsumer>(FileManager_, inFile);
     }
 
 private:
-    IFileManager& FileMgr_;
+    IFileManager& FileManager_;
 };
 
 class WaffleFrontendActionFactory : public clang::tooling::FrontendActionFactory {
 public:
-    WaffleFrontendActionFactory(IFileManager& fileMgr)
-        : FileMgr_{fileMgr}
+    WaffleFrontendActionFactory(IFileManager& fileManager)
+        : FileManager_{fileManager}
     {}
 
     std::unique_ptr<clang::FrontendAction> create() override {
-        return std::make_unique<WaffleFrontendAction>(FileMgr_);
+        return std::make_unique<WaffleFrontendAction>(FileManager_);
     }
 
 private:
-    IFileManager& FileMgr_;
+    IFileManager& FileManager_;
 };
 
 } // namespace
@@ -89,8 +89,8 @@ int main(int argc, const char** argv) {
     }
     llvm::errs() << "loaded compile database with " << db->getAllFiles().size() << " files\n";
 
-    FileManager fileMgr{outputDir};
-    auto action = std::make_unique<WaffleFrontendActionFactory>(fileMgr);
+    FileManager fileManager{outputDir};
+    auto action = std::make_unique<WaffleFrontendActionFactory>(fileManager);
     clang::tooling::ClangTool tool(*db.get(), {filePath});
     if (tool.run(action.get())) {
         llvm::errs() << "some problems with file \"" << filePath << "\"\n";

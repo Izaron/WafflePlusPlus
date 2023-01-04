@@ -11,7 +11,7 @@ namespace clang {
 namespace Waffle {
 
 struct Context {
-    IFileManager& FileMgr;
+    IFileManager& FileManager;
     std::string_view InFile;
     clang::ASTContext& AstContext;
 };
