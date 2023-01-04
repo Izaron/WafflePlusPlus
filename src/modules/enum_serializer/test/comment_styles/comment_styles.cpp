@@ -1,6 +1,6 @@
 /// @serializable
 enum class EColor {
-    Red, ///< @stringValue red
-    Green, ///< @stringValue green
-    Blue, ///< @stringValue blue
+    Red, ///< @stringvalue red
+    Green, ///< @stringvalue green
+    Blue, ///< @stringvalue blue
 };

@@ -2,9 +2,15 @@
 
 #include <clang/AST/RecursiveASTVisitor.h>
 
+#include <array>
+
 using namespace Waffle;
 
 namespace {
+
+constexpr std::string_view MODULE_NAME = "enum_serializer";
+constexpr std::string_view COMMAND_SERIALIZABLE = "serializable";
+constexpr std::string_view COMMAND_STRING_VALUE = "stringvalue";
 
 class EnumVisitor : public clang::RecursiveASTVisitor<EnumVisitor> {
 public:
@@ -24,7 +30,15 @@ private:
 } // namespace
 
 std::string_view EnumSerializerModule::Name() const {
-    return "enum_serializer";
+    return MODULE_NAME;
+}
+
+std::span<const std::string_view> EnumSerializerModule::Commands() const {
+    static const std::vector<std::string_view> COMMANDS = {
+        COMMAND_SERIALIZABLE,
+        COMMAND_STRING_VALUE,
+    };
+    return COMMANDS;
 }
 
 void EnumSerializerModule::Do(Context& ctx) const {

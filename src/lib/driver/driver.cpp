@@ -6,6 +6,9 @@
 #include <lib/file/file.h>
 #include <lib/module/registry.h>
 
+#include <optional>
+#include <sstream>
+
 using namespace Waffle;
 
 namespace {
@@ -63,12 +66,32 @@ private:
     IFileManager& FileManager_;
 };
 
+std::optional<std::string> BuildCommandsArgs() {
+    std::vector<std::string_view> allCommands;
+    for (const auto& module : ModuleRegistry::GetModules()) {
+        const auto& moduleCommands = module->Commands();
+        allCommands.insert(allCommands.end(), moduleCommands.begin(), moduleCommands.end());
+    }
+    if (allCommands.empty()) {
+        return std::nullopt;
+    }
+    std::stringstream ss;
+    ss << "-fcomment-block-commands=";
+    for (const auto command : allCommands) {
+        ss << command << ",";
+    }
+    return ss.str();
+}
+
 clang::tooling::CommandLineArguments WaffleArgumentsAdjuster(
     const clang::tooling::CommandLineArguments& args, llvm::StringRef /*filename*/)
 {
     auto result = args;
     result.emplace_back("-fparse-all-comments");
-    result.emplace_back("-fcomment-block-commands=serializable");
+    if (auto arg = BuildCommandsArgs()) {
+        llvm::errs() << "add custom commands: " << *arg << "\n";
+        result.emplace_back(std::move(*arg));
+    }
     return result;
 }
 

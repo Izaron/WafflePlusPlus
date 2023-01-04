@@ -3,6 +3,7 @@
 #include <lib/file/file.h>
 
 #include <memory>
+#include <span>
 
 namespace clang {
     class ASTContext;
@@ -20,6 +21,7 @@ class IModule {
 public:
     virtual ~IModule() = default;
     virtual std::string_view Name() const = 0;
+    virtual std::span<const std::string_view> Commands() const = 0;
     virtual void Do(Context& context) const = 0;
 };
 

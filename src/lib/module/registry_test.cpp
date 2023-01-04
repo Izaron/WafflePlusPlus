@@ -5,6 +5,7 @@ using namespace Waffle;
 
 struct DummyModule : IModule {
     std::string_view Name() const override { return ""; }
+    std::span<const std::string_view> Commands() const override { return {}; }
     void Do(Context& /*context*/) const override {};
 };
 
