@@ -5,9 +5,9 @@ target_link_libraries(enum_serializer_wafflec driver module file enum_serializer
 add_custom_command(
   OUTPUT enum_serializer_generate_comment_styles_marker
   COMMAND touch enum_serializer_generate_comment_styles_marker
-  COMMAND enum_serializer_wafflec "${CMAKE_CURRENT_BINARY_DIR}/comment_styles/comment_styles.cpp" "${CMAKE_CURRENT_BINARY_DIR}/comment_styles" > wafflec_out 2> wafflec_err
-  DEPENDS enum_serializer_wafflec "${CMAKE_CURRENT_SOURCE_DIR}/comment_styles/comment_styles.cpp"
-  COMMENT "Running wafflec generator on ${CMAKE_CURRENT_BINARY_DIR}/comment_styles/comment_styles.cpp"
+  COMMAND enum_serializer_wafflec "${CMAKE_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/comment_styles/comment_styles.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/comment_styles" > wafflec.out 2> wafflec.err
+  DEPENDS enum_serializer_wafflec comment_styles/comment_styles.cpp
+  COMMENT "Running wafflec generator on comment_styles/comment_styles.cpp"
   VERBATIM)
 
 add_custom_target(
