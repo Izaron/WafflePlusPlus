@@ -1,6 +1,7 @@
 #include "module.h"
 
 #include <lib/comment/comment.h>
+#include <lib/string_util/string_util.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 
@@ -68,20 +69,10 @@ public:
         printer << "// source: " << Ctx_.InFile << "\n";
         printer << "int kek = 1337;\n";
         for (const auto& data : Datas_) {
-
-            std::string qualifiedName;
-            llvm::raw_string_ostream output(qualifiedName);
-            data.Decl->printQualifiedName(output);
-
-            printer << "// values for " << qualifiedName << "\n";
+            printer << "// values for " << StringUtil::QualifiedName(*data.Decl) << "\n";
             for (const auto& [constantDecl, stringValues] : data.Constants) {
-
-                std::string qualifiedName;
-                llvm::raw_string_ostream output(qualifiedName);
-                constantDecl->printQualifiedName(output);
-
                 for (const auto& stringValue : stringValues) {
-                    printer << "// " << qualifiedName << " <---> " << stringValue << "\n";
+                    printer << "// " << StringUtil::QualifiedName(*constantDecl) << " <---> " << stringValue << "\n";
                 }
             }
         }
