@@ -15,7 +15,7 @@ namespace {
 
 class WaffleASTConsumer : public clang::ASTConsumer {
 public:
-    WaffleASTConsumer(IFileManager& fileManager, std::string_view inFile)
+    WaffleASTConsumer(IFileManager& fileManager, std::string inFile)
         : FileManager_{fileManager}
         , InFile_{inFile}
     {}
@@ -33,7 +33,7 @@ public:
 
 private:
     IFileManager& FileManager_;
-    std::string_view InFile_;
+    std::string InFile_;
 };
 
 class WaffleFrontendAction : public clang::ASTFrontendAction {
@@ -45,7 +45,7 @@ public:
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
         clang::CompilerInstance& /*compiler*/, llvm::StringRef inFile) override
     {
-        return std::make_unique<WaffleASTConsumer>(FileManager_, inFile);
+        return std::make_unique<WaffleASTConsumer>(FileManager_, std::string{inFile});
     }
 
 private:
