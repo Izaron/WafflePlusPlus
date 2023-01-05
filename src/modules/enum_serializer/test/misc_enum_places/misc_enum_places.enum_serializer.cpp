@@ -37,6 +37,32 @@ Color FromString<Color>(std::string_view value) {
 }
 
 template<>
+Color FromStringOrDefault<Color>(std::string_view value, Color defaultResult) {
+    if (value == "Red") {
+        return Color::Red;
+    }
+    if (value == "Green") {
+        return Color::Green;
+    }
+    if (value == "Blue") {
+        return Color::Blue;
+    }
+    if (value == "Cyan") {
+        return Color::Cyan;
+    }
+    if (value == "Magenta") {
+        return Color::Magenta;
+    }
+    if (value == "Yellow") {
+        return Color::Yellow;
+    }
+    if (value == "Black") {
+        return Color::Black;
+    }
+    return defaultResult;
+}
+
+template<>
 std::string_view ToString(Color value) {
     switch (value) {
         case Color::Red: {
@@ -93,6 +119,20 @@ OsManager::Type FromString<OsManager::Type>(std::string_view value) {
 }
 
 template<>
+OsManager::Type FromStringOrDefault<OsManager::Type>(std::string_view value, OsManager::Type defaultResult) {
+    if (value == "LINUX") {
+        return OsManager::LINUX;
+    }
+    if (value == "WINDOWS") {
+        return OsManager::WINDOWS;
+    }
+    if (value == "OSX") {
+        return OsManager::OSX;
+    }
+    return defaultResult;
+}
+
+template<>
 std::string_view ToString(OsManager::Type value) {
     switch (value) {
         case OsManager::LINUX: {
@@ -124,6 +164,14 @@ The::Longest::Namespace::Very::Long::Qualified::Name::Value FromString<The::Long
         return The::Longest::Namespace::Very::Long::Qualified::Name::Value::Foo;
     }
     throw std::runtime_error("Can't parse value \"" + std::string{value} + "\" to enum type \"The::Longest::Namespace::Very::Long::Qualified::Name::Value\"");
+}
+
+template<>
+The::Longest::Namespace::Very::Long::Qualified::Name::Value FromStringOrDefault<The::Longest::Namespace::Very::Long::Qualified::Name::Value>(std::string_view value, The::Longest::Namespace::Very::Long::Qualified::Name::Value defaultResult) {
+    if (value == "Foo") {
+        return The::Longest::Namespace::Very::Long::Qualified::Name::Value::Foo;
+    }
+    return defaultResult;
 }
 
 template<>

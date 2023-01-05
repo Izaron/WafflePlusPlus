@@ -40,15 +40,12 @@ public:
 private:
     void PrintEnumData(const EnumData& data) {
         PrintFromString(data);
+        PrintFromStringOrDefault(data);
         PrintToString(data);
         PrintGetAllEnumValues(data);
     }
 
-    void PrintFromString(const EnumData& data) {
-        const std::string enumType = StringUtil::QualifiedName(*data.Decl);
-        Printer_ << "template<>\n";
-        Printer_ << enumType << " FromString<" << enumType << ">(std::string_view value) {\n";
-        Printer_.AddIndent();
+    void PrintFromStringMainBody(const EnumData& data) {
         for (const auto& [constantDecl, stringValues] : data.Constants) {
             const std::string enumConstantName = StringUtil::QualifiedName(*constantDecl);
             for (const auto& stringValue : stringValues) {
@@ -59,7 +56,26 @@ private:
                 Printer_ << "}\n";
             }
         }
+    }
+
+    void PrintFromString(const EnumData& data) {
+        const std::string enumType = StringUtil::QualifiedName(*data.Decl);
+        Printer_ << "template<>\n";
+        Printer_ << enumType << " FromString<" << enumType << ">(std::string_view value) {\n";
+        Printer_.AddIndent();
+        PrintFromStringMainBody(data);
         Printer_.Throw(R"("Can't parse value \"" + std::string{value} + "\" to enum type \")" + enumType + R"(\"")");
+        Printer_.DecreaseIndent();
+        Printer_ << "}\n\n";
+    }
+
+    void PrintFromStringOrDefault(const EnumData& data) {
+        const std::string enumType = StringUtil::QualifiedName(*data.Decl);
+        Printer_ << "template<>\n";
+        Printer_ << enumType << " FromStringOrDefault<" << enumType << ">(std::string_view value, " << enumType << " defaultResult) {\n";
+        Printer_.AddIndent();
+        PrintFromStringMainBody(data);
+        Printer_ << "return defaultResult;\n";
         Printer_.DecreaseIndent();
         Printer_ << "}\n\n";
     }

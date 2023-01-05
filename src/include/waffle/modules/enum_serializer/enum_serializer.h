@@ -9,6 +9,9 @@ template<typename EnumType>
 EnumType FromString(std::string_view value);
 
 template<typename EnumType>
+EnumType FromStringOrDefault(std::string_view value, EnumType defaultResult);
+
+template<typename EnumType>
 std::string_view ToString(EnumType value);
 
 template<typename EnumType>
