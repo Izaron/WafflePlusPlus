@@ -19,8 +19,11 @@ std::string_view AfterLastSlash(std::string_view s) {
 }
 
 std::string InsertBeforeExt(std::string_view s, std::string_view extra) {
-    if (const auto pos = s.find_last_of('.'); pos != std::string_view::npos) {
-        return std::string{s.substr(0, pos)} + "." + std::string{extra} + std::string{s.substr(pos)};
+    if (const auto lastPos = s.find_last_of('.'); lastPos != std::string_view::npos) {
+        if (const auto prevLastPos = s.find_last_of('.', lastPos - 1); prevLastPos != std::string_view::npos) {
+            return std::string{s.substr(0, prevLastPos)} + "." + std::string{extra} + std::string{s.substr(lastPos)};
+        }
+        return std::string{s.substr(0, lastPos)} + "." + std::string{extra} + std::string{s.substr(lastPos)};
     }
     return std::string{s};
 }

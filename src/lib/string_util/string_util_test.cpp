@@ -20,9 +20,9 @@ TEST(StringUtilTest, InsertBeforeExtSimple) {
 }
 
 TEST(StringUtilTest, InsertBeforeExtSlashesAndDots) {
-    constexpr std::string_view s = "/a/b/c/foo.bar.cpp";
+    constexpr std::string_view s = "/a/b/c/foo.header.cpp";
     constexpr std::string_view extra = "long_word";
-    ASSERT_STREQ(InsertBeforeExt(s, extra).data(), "/a/b/c/foo.bar.long_word.cpp");
+    ASSERT_STREQ(InsertBeforeExt(s, extra).data(), "/a/b/c/foo.long_word.cpp");
 }
 
 TEST(StringUtilTest, SplitBySpaceSimple) {
