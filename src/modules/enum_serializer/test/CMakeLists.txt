@@ -2,20 +2,20 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/null.cpp" "")
 add_executable(enum_serializer_wafflec null.cpp)
 target_link_libraries(enum_serializer_wafflec driver module file comment string_util enum_serializer clangTooling)
 
-# copy from xxx.h (in source dir) to xxx.header.cpp (in binary dir)
+# copy from xxx.h (in source dir) to xxx.h.cpp (in binary dir)
 add_custom_command(
   OUTPUT
-    "${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.header.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.h.cpp"
   COMMAND
     ${CMAKE_COMMAND} -E copy
     "${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places/misc_enum_places.h"
-    "${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.header.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.h.cpp"
   DEPENDS
     misc_enum_places/misc_enum_places.h
   VERBATIM)
 
-# link xxx.header.cpp to a library so it will compile
-add_library(misc_enum_places_header_cpp misc_enum_places/misc_enum_places.header.cpp)
+# link xxx.h.cpp to a library so it will compile
+add_library(misc_enum_places_header_cpp misc_enum_places/misc_enum_places.h.cpp)
 
 # add command to codegen files
 add_custom_command(
@@ -24,7 +24,7 @@ add_custom_command(
   COMMAND
     enum_serializer_wafflec
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.header.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.h.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places
     > wafflec.out 2> wafflec.err
   DEPENDS

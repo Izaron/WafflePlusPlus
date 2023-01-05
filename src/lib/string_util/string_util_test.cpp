@@ -25,6 +25,16 @@ TEST(StringUtilTest, InsertBeforeExtSlashesAndDots) {
     ASSERT_STREQ(InsertBeforeExt(s, extra).data(), "/a/b/c/foo.long_word.cpp");
 }
 
+TEST(StringUtilTest, RemoveExtSimple) {
+    constexpr std::string_view s = "foo.extra.cpp";
+    ASSERT_STREQ(std::string{RemoveExt(s)}.c_str(), "foo.extra");
+}
+
+TEST(StringUtilTest, RemoveExtNoExt) {
+    constexpr std::string_view s = "very_long_word";
+    ASSERT_STREQ(std::string{RemoveExt(s)}.c_str(), "very_long_word");
+}
+
 TEST(StringUtilTest, SplitBySpaceSimple) {
     constexpr std::string_view s = " aaa  bbbb ccccc";
     const auto split = SplitBySpace(s);

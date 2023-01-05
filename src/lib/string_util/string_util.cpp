@@ -28,6 +28,13 @@ std::string InsertBeforeExt(std::string_view s, std::string_view extra) {
     return std::string{s};
 }
 
+std::string_view RemoveExt(std::string_view s) {
+    if (const auto pos = s.find_last_of('.'); pos != std::string_view::npos) {
+        return s.substr(0, pos);
+    }
+    return s;
+}
+
 std::vector<std::string_view> SplitBySpace(std::string_view s) {
     std::vector<std::string_view> result;
     int first_non_space = s.size();
