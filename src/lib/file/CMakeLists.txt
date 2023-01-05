@@ -1,4 +1,4 @@
-add_library(file STATIC file.cpp)
+add_library(file STATIC file.cpp nice_printer.cpp)
 
 enable_testing()
 add_executable(file_test file_test.cpp)
