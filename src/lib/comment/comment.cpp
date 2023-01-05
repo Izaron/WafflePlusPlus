@@ -32,6 +32,9 @@ public:
 
     void Parse() {
         const auto* comment = AstContext_.getCommentForDecl(&Decl_, /*PP=*/nullptr);
+        if (!comment) {
+            return;
+        }
         for (const auto* block : comment->getBlocks()) {
             ParseBlockContent(*block);
         }

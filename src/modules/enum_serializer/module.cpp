@@ -1,14 +1,15 @@
 #include "module.h"
 
-#include <clang/AST/RecursiveASTVisitor.h>
+#include <lib/comment/comment.h>
 
-#include <array>
+#include <clang/AST/RecursiveASTVisitor.h>
 
 using namespace Waffle;
 
 namespace {
 
 constexpr std::string_view MODULE_NAME = "enum_serializer";
+
 constexpr std::string_view COMMAND_SERIALIZABLE = "serializable";
 constexpr std::string_view COMMAND_STRING_VALUE = "stringvalue";
 
@@ -19,6 +20,11 @@ public:
     {}
 
     bool VisitEnumDecl(clang::EnumDecl* decl) {
+        auto commentData = ParseCommentData(Ctx_.AstContext, *decl);
+        const auto* serializableCommand = commentData->FindByName(COMMAND_SERIALIZABLE);
+        if (!serializableCommand) {
+            return true;
+        }
         decl->dump();
         return true;
     }

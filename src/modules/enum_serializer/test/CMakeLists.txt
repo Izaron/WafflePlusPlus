@@ -1,6 +1,6 @@
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/null.cpp" "")
 add_executable(enum_serializer_wafflec null.cpp)
-target_link_libraries(enum_serializer_wafflec driver module file enum_serializer clangTooling)
+target_link_libraries(enum_serializer_wafflec driver module file comment enum_serializer clangTooling)
 
 add_custom_command(
   OUTPUT enum_serializer_generate_comment_styles_marker
