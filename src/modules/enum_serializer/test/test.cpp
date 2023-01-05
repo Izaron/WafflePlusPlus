@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <waffle/modules/enum_serializer/enum_serializer.h>
+#include "custom_names/custom_names.h"
 #include "misc_enum_places/misc_enum_places.h"
 
 using namespace Waffle;
@@ -96,4 +97,51 @@ TEST(EnumSerializer, MiscEnumPlacesVeryLongName) {
     auto values = GetAllEnumValues<T>();
     ASSERT_EQ(values.size(), 1);
     ASSERT_EQ(values[0], T::Foo);
+}
+
+TEST(EnumSerializer, CustomNamesBookColor) {
+    // check FromString
+    ASSERT_EQ(FromString<BookColor>("red"), BookColor::kRed);
+    ASSERT_EQ(FromString<BookColor>("rot"), BookColor::kRed);
+    ASSERT_EQ(FromString<BookColor>("rouge"), BookColor::kRed);
+    ASSERT_EQ(FromString<BookColor>("green"), BookColor::kGreen);
+    ASSERT_EQ(FromString<BookColor>("grün"), BookColor::kGreen);
+    ASSERT_EQ(FromString<BookColor>("vert"), BookColor::kGreen);
+    ASSERT_EQ(FromString<BookColor>("blue"), BookColor::kBlue);
+    ASSERT_EQ(FromString<BookColor>("blau"), BookColor::kBlue);
+    ASSERT_EQ(FromString<BookColor>("bleu"), BookColor::kBlue);
+    AssertThrows<BookColor>("pink", R"(Can't parse value "pink" to enum type "BookColor")");
+
+    // check ToString
+    ASSERT_EQ(ToString(BookColor::kRed), "red");
+    ASSERT_EQ(ToString(BookColor::kGreen), "green");
+    ASSERT_EQ(ToString(BookColor::kBlue), "blue");
+
+    // check GetAllEnumValues
+    ASSERT_EQ(GetAllEnumValues<BookColor>().size(), 3);
+}
+
+TEST(EnumSerializer, CustomNamesNumber) {
+    // check FromString
+    ASSERT_EQ(FromString<Number>("zero"), ZERO);
+    ASSERT_EQ(FromString<Number>("null"), ZERO);
+    ASSERT_EQ(FromString<Number>("none"), ZERO);
+    ASSERT_EQ(FromString<Number>("empty"), ZERO);
+    ASSERT_EQ(FromString<Number>("absent"), ZERO);
+    ASSERT_EQ(FromString<Number>("missing"), ZERO);
+    ASSERT_EQ(FromString<Number>("invalid"), ZERO);
+    ASSERT_EQ(FromString<Number>("one"), ONE);
+    ASSERT_EQ(FromString<Number>("single"), ONE);
+    ASSERT_EQ(FromString<Number>("TWO"), TWO);
+    ASSERT_EQ(FromString<Number>("THREE"), THREE);
+    AssertThrows<Number>("four", R"(Can't parse value "four" to enum type "Number")");
+
+    // check ToString
+    ASSERT_EQ(ToString(ZERO), "zero");
+    ASSERT_EQ(ToString(ONE), "one");
+    ASSERT_EQ(ToString(TWO), "TWO");
+    ASSERT_EQ(ToString(THREE), "THREE");
+
+    // check GetAllEnumValues
+    ASSERT_EQ(GetAllEnumValues<Number>().size(), 4);
 }
