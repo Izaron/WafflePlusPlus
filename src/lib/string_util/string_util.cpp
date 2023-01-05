@@ -28,7 +28,7 @@ std::string InsertBeforeExt(std::string_view s, std::string_view extra) {
     return std::string{s};
 }
 
-std::string_view RemoveExt(std::string_view s) {
+std::string_view RemoveLastExt(std::string_view s) {
     if (const auto pos = s.find_last_of('.'); pos != std::string_view::npos) {
         return s.substr(0, pos);
     }

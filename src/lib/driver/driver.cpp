@@ -104,9 +104,9 @@ int main(int argc, const char** argv) {
 
     if (argc < 4) {
         llvm::errs() << "please provide paths:\n";
-        llvm::errs() << "argv[1] = binary dir with compile_commands.json\n";
+        llvm::errs() << "argv[1] = current binary dir (with compile_commands.json)\n";
         llvm::errs() << "argv[2] = path to source .cpp file\n";
-        llvm::errs() << "argv[3] = dir where write generated files\n";
+        llvm::errs() << "argv[3] = dir where to save generated files\n";
         return 1;
     }
 

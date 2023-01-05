@@ -1,8 +1,8 @@
 /// @serializable
 enum class Color {
-    Red, ///< @stringvalue red rote
-    Green, ///< @stringvalue green
-    Blue, ///< @stringvalue blue
+    Red,
+    Green,
+    Blue,
 };
 
 struct OsManager {

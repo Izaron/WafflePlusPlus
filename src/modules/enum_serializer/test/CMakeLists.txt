@@ -10,6 +10,10 @@ add_custom_command(
     ${CMAKE_COMMAND} -E copy
     "${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places/misc_enum_places.h"
     "${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.h.cpp"
+  COMMAND
+    ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places/misc_enum_places.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.h"
   DEPENDS
     misc_enum_places/misc_enum_places.h
   VERBATIM)

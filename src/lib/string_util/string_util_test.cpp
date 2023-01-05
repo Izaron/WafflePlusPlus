@@ -25,14 +25,14 @@ TEST(StringUtilTest, InsertBeforeExtSlashesAndDots) {
     ASSERT_STREQ(InsertBeforeExt(s, extra).data(), "/a/b/c/foo.long_word.cpp");
 }
 
-TEST(StringUtilTest, RemoveExtSimple) {
+TEST(StringUtilTest, RemoveLastExtSimple) {
     constexpr std::string_view s = "foo.extra.cpp";
-    ASSERT_STREQ(std::string{RemoveExt(s)}.c_str(), "foo.extra");
+    ASSERT_STREQ(std::string{RemoveLastExt(s)}.c_str(), "foo.extra");
 }
 
-TEST(StringUtilTest, RemoveExtNoExt) {
+TEST(StringUtilTest, RemoveLastExtNoExt) {
     constexpr std::string_view s = "very_long_word";
-    ASSERT_STREQ(std::string{RemoveExt(s)}.c_str(), "very_long_word");
+    ASSERT_STREQ(std::string{RemoveLastExt(s)}.c_str(), "very_long_word");
 }
 
 TEST(StringUtilTest, SplitBySpaceSimple) {
