@@ -68,10 +68,22 @@ public:
         printer << "// source: " << Ctx_.InFile << "\n";
         printer << "int kek = 1337;\n";
         for (const auto& data : Datas_) {
+
             std::string qualifiedName;
             llvm::raw_string_ostream output(qualifiedName);
             data.Decl->printQualifiedName(output);
-            printer << "// " << qualifiedName << "\n";
+
+            printer << "// values for " << qualifiedName << "\n";
+            for (const auto& [constantDecl, stringValues] : data.Constants) {
+
+                std::string qualifiedName;
+                llvm::raw_string_ostream output(qualifiedName);
+                constantDecl->printQualifiedName(output);
+
+                for (const auto& stringValue : stringValues) {
+                    printer << "// " << qualifiedName << " <---> " << stringValue << "\n";
+                }
+            }
         }
     }
 
