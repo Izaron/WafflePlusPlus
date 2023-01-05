@@ -2,23 +2,42 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/null.cpp" "")
 add_executable(enum_serializer_wafflec null.cpp)
 target_link_libraries(enum_serializer_wafflec driver module file comment string_util enum_serializer clangTooling)
 
+# copy from xxx.h (in source dir) to xxx.header.cpp (in binary dir)
 add_custom_command(
-  OUTPUT enum_serializer_generate_comment_styles_marker
-  COMMAND touch enum_serializer_generate_comment_styles_marker
-  COMMAND enum_serializer_wafflec "${CMAKE_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/comment_styles/comment_styles.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/comment_styles" > wafflec.out 2> wafflec.err
-  DEPENDS enum_serializer_wafflec comment_styles/comment_styles.cpp
-  COMMENT "Running wafflec generator on comment_styles/comment_styles.cpp"
+  OUTPUT
+    "${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.header.cpp"
+  COMMAND
+    ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places/misc_enum_places.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.header.cpp"
+  DEPENDS
+    misc_enum_places/misc_enum_places.h
   VERBATIM)
 
-add_custom_target(
-  enum_serializer_generate_comment_styles
-  DEPENDS enum_serializer_generate_comment_styles_marker
-)
+# link xxx.header.cpp to a library so it will compile
+add_library(misc_enum_places_header_cpp misc_enum_places/misc_enum_places.header.cpp)
 
-file(GLOB_RECURSE TEST_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.cpp")
-add_executable(enum_serializer_test test.cpp ${TEST_SOURCES})
+# add command to codegen files
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places/misc_enum_places.enum_serializer.cpp
+  COMMAND
+    enum_serializer_wafflec
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.header.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places
+    > wafflec.out 2> wafflec.err
+  DEPENDS
+    enum_serializer_wafflec misc_enum_places_header_cpp
+  COMMENT
+    "Running wafflec generator on misc_enum_places/misc_enum_places.h"
+  VERBATIM)
+
+# link executable with codegen files
+add_executable(enum_serializer_test
+  test.cpp
+  misc_enum_places/misc_enum_places.enum_serializer.cpp)
 target_link_libraries(enum_serializer_test gtest_main)
-add_dependencies(enum_serializer_test enum_serializer_generate_comment_styles)
 
 include(GoogleTest)
 gtest_discover_tests(enum_serializer_test)

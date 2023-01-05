@@ -3,6 +3,7 @@ enum EColored {
     Red, ///< @stringvalue red rote
     Green, ///< @stringvalue green
     Blue, ///< @stringvalue blue
+    Yellow,
 };
 
 enum class EColor1 {
