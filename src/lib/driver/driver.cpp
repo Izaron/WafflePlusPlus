@@ -131,7 +131,6 @@ int main(int argc, const char** argv) {
         return 1;
     }
 
-    llvm::errs() << "generated files in directory \"" << outputDir << "\":\n";
     for (const auto& name : fileManager->GetGeneratedFilesNames()) {
         llvm::errs() << "added \"" << name << "\"\n";
     }

@@ -18,4 +18,11 @@ std::string_view AfterLastSlash(std::string_view s) {
     return s;
 }
 
+std::string InsertBeforeExt(std::string_view s, std::string_view extra) {
+    if (const auto pos = s.find_last_of('.'); pos != std::string_view::npos) {
+        return std::string{s.substr(0, pos)} + "." + std::string{extra} + std::string{s.substr(pos)};
+    }
+    return std::string{s};
+}
+
 } // namespace Waffle::StringUtil
