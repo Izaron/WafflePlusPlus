@@ -22,8 +22,11 @@ public:
         Printer_ = NicePrinter{Ctx_.FileManager.GetOrCreateFilePrinter(outputFile)};
 
         Printer_.AddPreabmle(StringUtil::RemoveLastExt(inFile));
+        Printer_.Include("vector");
         Printer_.Include("stdexcept");
+        Printer_.NewLine();
         Printer_.Include("waffle/modules/enum_serializer/enum_serializer.h");
+        Printer_.NewLine();
         Printer_.Include(StringUtil::RemoveLastExt(Ctx_.InFile));
         Printer_.NewLine();
 
@@ -38,6 +41,7 @@ private:
     void PrintEnumData(const EnumData& data) {
         PrintFromString(data);
         PrintToString(data);
+        PrintGetAllEnumValues(data);
     }
 
     void PrintFromString(const EnumData& data) {
@@ -80,6 +84,24 @@ private:
         Printer_ << "}\n";
 
         Printer_.Unreachable();
+        Printer_.DecreaseIndent();
+        Printer_ << "}\n\n";
+    }
+
+    void PrintGetAllEnumValues(const EnumData& data) {
+        const std::string enumType = StringUtil::QualifiedName(*data.Decl);
+        Printer_ << "template<>\n";
+        Printer_ << "std::span<const " << enumType << "> GetAllEnumValues() {\n";
+        Printer_.AddIndent();
+        Printer_ << "static const std::vector<" << enumType << "> values{\n";
+        Printer_.AddIndent();
+        for (const auto& [constantDecl, _] : data.Constants) {
+            const std::string enumConstantName = StringUtil::QualifiedName(*constantDecl);
+            Printer_ << enumConstantName << ",\n";
+        }
+        Printer_.DecreaseIndent();
+        Printer_ << "};\n";
+        Printer_ << "return values;\n";
         Printer_.DecreaseIndent();
         Printer_ << "}\n\n";
     }
