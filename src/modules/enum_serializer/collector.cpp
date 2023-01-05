@@ -1,6 +1,7 @@
 #include "collector.h"
 
 #include <lib/comment/comment.h>
+#include <lib/string_util/string_util.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 
@@ -36,7 +37,17 @@ private:
     }
 
     std::vector<std::string> CalculateStringValues(const clang::EnumConstantDecl* decl) {
-        return {"dummy"};
+        std::vector<std::string> result;
+        auto commentData = ParseCommentData(Ctx_, *decl);
+        if (const auto command = commentData->FindByName(COMMAND_STRING_VALUE)) {
+            for (const auto part : StringUtil::SplitBySpace(command->Text)) {
+                result.emplace_back(part);
+            }
+        }
+        if (result.empty()) {
+            result.emplace_back(decl->getNameAsString());
+        }
+        return result;
     }
 
 private:

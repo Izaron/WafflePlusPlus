@@ -24,3 +24,19 @@ TEST(StringUtilTest, InsertBeforeExtSlashesAndDots) {
     constexpr std::string_view extra = "long_word";
     ASSERT_STREQ(InsertBeforeExt(s, extra).data(), "/a/b/c/foo.bar.long_word.cpp");
 }
+
+TEST(StringUtilTest, SplitBySpaceSimple) {
+    constexpr std::string_view s = " aaa  bbbb ccccc";
+    const auto split = SplitBySpace(s);
+    ASSERT_EQ(split.size(), 3);
+    ASSERT_STREQ(std::string{split[0]}.c_str(), "aaa");
+    ASSERT_STREQ(std::string{split[1]}.c_str(), "bbbb");
+    ASSERT_STREQ(std::string{split[2]}.c_str(), "ccccc");
+}
+
+TEST(StringUtilTest, SplitBySpaceSinglePart) {
+    constexpr std::string_view s = "aaa";
+    const auto split = SplitBySpace(s);
+    ASSERT_EQ(split.size(), 1);
+    ASSERT_STREQ(std::string{split[0]}.c_str(), "aaa");
+}

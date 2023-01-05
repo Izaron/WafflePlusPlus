@@ -25,4 +25,25 @@ std::string InsertBeforeExt(std::string_view s, std::string_view extra) {
     return std::string{s};
 }
 
+std::vector<std::string_view> SplitBySpace(std::string_view s) {
+    std::vector<std::string_view> result;
+    int first_non_space = s.size();
+    int last_non_space = -1;
+    for (int i = 0; i < s.size(); ++i) {
+        if (std::isspace(s[i])) {
+            if (first_non_space != s.size()) {
+                result.push_back(s.substr(first_non_space, last_non_space - first_non_space + 1));
+            }
+            first_non_space = s.size();
+        } else {
+            first_non_space = std::min(first_non_space, i);
+            last_non_space = i;
+        }
+    }
+    if (first_non_space != s.size()) {
+        result.push_back(s.substr(first_non_space, last_non_space - first_non_space + 1));
+    }
+    return result;
+}
+
 } // namespace Waffle::StringUtil
