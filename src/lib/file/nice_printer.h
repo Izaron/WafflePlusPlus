@@ -13,6 +13,8 @@ public:
     void NewLine(int count = 1);
     void OpenNamespace();
     void CloseNamespace();
+    void Throw(std::string_view what);
+    void ThrowString(std::string_view what);
     void AddIndent(int diff = 4);
     void DecreaseIndent(int diff = 4);
 

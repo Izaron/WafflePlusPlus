@@ -29,6 +29,14 @@ void NicePrinter::CloseNamespace() {
     *this << "} // namespace Waffle\n";
 }
 
+void NicePrinter::Throw(std::string_view what) {
+    *this << "throw std::runtime_error(" << what << ");\n";
+}
+
+void NicePrinter::ThrowString(std::string_view what) {
+    Throw("\"" + std::string{what} + "\"");
+}
+
 void NicePrinter::AddIndent(int diff) {
     indent_ += 4;
 }

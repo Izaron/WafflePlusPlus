@@ -22,8 +22,8 @@ public:
         auto printer = NicePrinter{Ctx_.FileManager.GetOrCreateFilePrinter(outputFile)};
 
         printer.AddPreabmle(StringUtil::RemoveLastExt(inFile));
+        printer.Include("stdexcept");
         printer.Include("waffle/modules/enum_serializer/enum_serializer.h");
-        printer.NewLine();
         printer.Include(StringUtil::RemoveLastExt(Ctx_.InFile));
         printer.NewLine();
 
@@ -44,7 +44,7 @@ public:
                     printer << "}\n";
                 }
             }
-            printer << "// TODO: throw\n";
+            printer.Throw(R"("Can't parse value \"" + std::string{value} + "\" to enum type \")" + enumType + R"(\"")");
             printer.DecreaseIndent();
             printer << "}\n\n";
         }
