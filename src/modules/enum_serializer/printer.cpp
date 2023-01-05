@@ -19,42 +19,75 @@ public:
     void Print() {
         const std::string_view inFile = StringUtil::AfterLastSlash(Ctx_.InFile);
         const std::string outputFile = StringUtil::InsertBeforeExt(inFile, INSERT_BEFORE_EXT);
-        auto printer = NicePrinter{Ctx_.FileManager.GetOrCreateFilePrinter(outputFile)};
+        Printer_ = NicePrinter{Ctx_.FileManager.GetOrCreateFilePrinter(outputFile)};
 
-        printer.AddPreabmle(StringUtil::RemoveLastExt(inFile));
-        printer.Include("stdexcept");
-        printer.Include("waffle/modules/enum_serializer/enum_serializer.h");
-        printer.Include(StringUtil::RemoveLastExt(Ctx_.InFile));
-        printer.NewLine();
+        Printer_.AddPreabmle(StringUtil::RemoveLastExt(inFile));
+        Printer_.Include("stdexcept");
+        Printer_.Include("waffle/modules/enum_serializer/enum_serializer.h");
+        Printer_.Include(StringUtil::RemoveLastExt(Ctx_.InFile));
+        Printer_.NewLine();
 
-        printer.OpenNamespace();
-
+        Printer_.OpenNamespace();
         for (const auto& data : Datas_) {
-            const std::string enumType = StringUtil::QualifiedName(*data.Decl);
-            printer << "template<>\n";
-            printer << enumType << " FromString<" << enumType << ">(std::string_view value) {\n";
-            printer.AddIndent();
-            for (const auto& [constantDecl, stringValues] : data.Constants) {
-                const std::string enumConstantName = StringUtil::QualifiedName(*constantDecl);
-                for (const auto& stringValue : stringValues) {
-                    printer << "if (value == \"" << stringValue << "\") {\n";
-                    printer.AddIndent();
-                    printer << "return " << enumConstantName << ";\n";
-                    printer.DecreaseIndent();
-                    printer << "}\n";
-                }
-            }
-            printer.Throw(R"("Can't parse value \"" + std::string{value} + "\" to enum type \")" + enumType + R"(\"")");
-            printer.DecreaseIndent();
-            printer << "}\n\n";
+            PrintEnumData(data);
         }
+        Printer_.CloseNamespace();
+    }
 
-        printer.CloseNamespace();
+private:
+    void PrintEnumData(const EnumData& data) {
+        PrintFromString(data);
+        PrintToString(data);
+    }
+
+    void PrintFromString(const EnumData& data) {
+        const std::string enumType = StringUtil::QualifiedName(*data.Decl);
+        Printer_ << "template<>\n";
+        Printer_ << enumType << " FromString<" << enumType << ">(std::string_view value) {\n";
+        Printer_.AddIndent();
+        for (const auto& [constantDecl, stringValues] : data.Constants) {
+            const std::string enumConstantName = StringUtil::QualifiedName(*constantDecl);
+            for (const auto& stringValue : stringValues) {
+                Printer_ << "if (value == \"" << stringValue << "\") {\n";
+                Printer_.AddIndent();
+                Printer_ << "return " << enumConstantName << ";\n";
+                Printer_.DecreaseIndent();
+                Printer_ << "}\n";
+            }
+        }
+        Printer_.Throw(R"("Can't parse value \"" + std::string{value} + "\" to enum type \")" + enumType + R"(\"")");
+        Printer_.DecreaseIndent();
+        Printer_ << "}\n\n";
+    }
+
+    void PrintToString(const EnumData& data) {
+        const std::string enumType = StringUtil::QualifiedName(*data.Decl);
+        Printer_ << "template<>\n";
+        Printer_ << "std::string_view ToString(" << enumType << " value) {\n";
+        Printer_.AddIndent();
+
+        Printer_ << "switch (value) {\n";
+        Printer_.AddIndent();
+        for (const auto& [constantDecl, stringValues] : data.Constants) {
+            const std::string enumConstantName = StringUtil::QualifiedName(*constantDecl);
+            Printer_ << "case " << enumConstantName << ": {\n";
+            Printer_.AddIndent();
+            Printer_ << "return \"" << stringValues[0] << "\";\n";
+            Printer_.DecreaseIndent();
+            Printer_ << "}\n";
+        }
+        Printer_.DecreaseIndent();
+        Printer_ << "}\n";
+
+        Printer_.Unreachable();
+        Printer_.DecreaseIndent();
+        Printer_ << "}\n\n";
     }
 
 private:
     Context& Ctx_;
     const EnumDatas& Datas_;
+    NicePrinter Printer_;
 };
 
 } // namespace

@@ -3,7 +3,7 @@
 namespace Waffle {
 
 NicePrinter::NicePrinter(IFilePrinter& printer)
-    : proxyPrinter_{printer}
+    : proxyPrinter_{&printer}
 {}
 
 void NicePrinter::AddPreabmle(std::string_view source) {
@@ -37,6 +37,10 @@ void NicePrinter::ThrowString(std::string_view what) {
     Throw("\"" + std::string{what} + "\"");
 }
 
+void NicePrinter::Unreachable() {
+    *this << "__builtin_unreachable();\n";
+}
+
 void NicePrinter::AddIndent(int diff) {
     indent_ += 4;
 }
@@ -49,12 +53,12 @@ NicePrinter& NicePrinter::operator<<(std::string_view s) {
     if (addIndent_) {
         if (s != "\n") {
             for (int i = 0; i < indent_; ++i) {
-                proxyPrinter_ << " ";
+                (*proxyPrinter_) << " ";
             }
         }
         addIndent_ = false;
     }
-    proxyPrinter_ << s;
+    (*proxyPrinter_) << s;
     if (s.ends_with("\n")) {
         addIndent_ = true;
     }

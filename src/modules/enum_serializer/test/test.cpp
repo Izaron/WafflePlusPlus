@@ -23,6 +23,14 @@ TEST(EnumSerializer, MiscEnumPlacesColor) {
     ASSERT_EQ(FromString<Color>("Yellow"), Color::Yellow);
     ASSERT_EQ(FromString<Color>("Black"), Color::Black);
     AssertThrows<Color>("Pink", R"(Can't parse value "Pink" to enum type "Color")");
+
+    ASSERT_EQ(ToString(Color::Red), "Red");
+    ASSERT_EQ(ToString(Color::Green), "Green");
+    ASSERT_EQ(ToString(Color::Blue), "Blue");
+    ASSERT_EQ(ToString(Color::Cyan), "Cyan");
+    ASSERT_EQ(ToString(Color::Magenta), "Magenta");
+    ASSERT_EQ(ToString(Color::Yellow), "Yellow");
+    ASSERT_EQ(ToString(Color::Black), "Black");
 }
 
 TEST(EnumSerializer, MiscEnumPlacesOsManager) {
@@ -30,10 +38,16 @@ TEST(EnumSerializer, MiscEnumPlacesOsManager) {
     ASSERT_EQ(FromString<OsManager::Type>("WINDOWS"), OsManager::WINDOWS);
     ASSERT_EQ(FromString<OsManager::Type>("OSX"), OsManager::OSX);
     AssertThrows<OsManager::Type>("FREEBSD", R"(Can't parse value "FREEBSD" to enum type "OsManager::Type")");
+
+    ASSERT_EQ(ToString(OsManager::LINUX), "LINUX");
+    ASSERT_EQ(ToString(OsManager::WINDOWS), "WINDOWS");
+    ASSERT_EQ(ToString(OsManager::OSX), "OSX");
 }
 
 TEST(EnumSerializer, MiscEnumPlacesVeryLongName) {
     using T = The::Longest::Namespace::Very::Long::Qualified::Name::Value;
     ASSERT_EQ(FromString<T>("Foo"), T::Foo);
     AssertThrows<T>("Bar", R"(Can't parse value "Bar" to enum type "The::Longest::Namespace::Very::Long::Qualified::Name::Value")");
+
+    ASSERT_EQ(ToString(T::Foo), "Foo");
 }

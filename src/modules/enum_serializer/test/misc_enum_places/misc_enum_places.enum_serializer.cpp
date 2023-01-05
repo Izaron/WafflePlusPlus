@@ -34,6 +34,34 @@ Color FromString<Color>(std::string_view value) {
 }
 
 template<>
+std::string_view ToString(Color value) {
+    switch (value) {
+        case Color::Red: {
+            return "Red";
+        }
+        case Color::Green: {
+            return "Green";
+        }
+        case Color::Blue: {
+            return "Blue";
+        }
+        case Color::Cyan: {
+            return "Cyan";
+        }
+        case Color::Magenta: {
+            return "Magenta";
+        }
+        case Color::Yellow: {
+            return "Yellow";
+        }
+        case Color::Black: {
+            return "Black";
+        }
+    }
+    __builtin_unreachable();
+}
+
+template<>
 OsManager::Type FromString<OsManager::Type>(std::string_view value) {
     if (value == "LINUX") {
         return OsManager::LINUX;
@@ -48,11 +76,37 @@ OsManager::Type FromString<OsManager::Type>(std::string_view value) {
 }
 
 template<>
+std::string_view ToString(OsManager::Type value) {
+    switch (value) {
+        case OsManager::LINUX: {
+            return "LINUX";
+        }
+        case OsManager::WINDOWS: {
+            return "WINDOWS";
+        }
+        case OsManager::OSX: {
+            return "OSX";
+        }
+    }
+    __builtin_unreachable();
+}
+
+template<>
 The::Longest::Namespace::Very::Long::Qualified::Name::Value FromString<The::Longest::Namespace::Very::Long::Qualified::Name::Value>(std::string_view value) {
     if (value == "Foo") {
         return The::Longest::Namespace::Very::Long::Qualified::Name::Value::Foo;
     }
     throw std::runtime_error("Can't parse value \"" + std::string{value} + "\" to enum type \"The::Longest::Namespace::Very::Long::Qualified::Name::Value\"");
+}
+
+template<>
+std::string_view ToString(The::Longest::Namespace::Very::Long::Qualified::Name::Value value) {
+    switch (value) {
+        case The::Longest::Namespace::Very::Long::Qualified::Name::Value::Foo: {
+            return "Foo";
+        }
+    }
+    __builtin_unreachable();
 }
 
 } // namespace Waffle

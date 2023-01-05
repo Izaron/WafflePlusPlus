@@ -6,6 +6,7 @@ namespace Waffle {
 
 class NicePrinter {
 public:
+    NicePrinter() = default;
     explicit NicePrinter(IFilePrinter& printer);
 
     void AddPreabmle(std::string_view source);
@@ -15,6 +16,7 @@ public:
     void CloseNamespace();
     void Throw(std::string_view what);
     void ThrowString(std::string_view what);
+    void Unreachable();
     void AddIndent(int diff = 4);
     void DecreaseIndent(int diff = 4);
 
@@ -23,7 +25,7 @@ public:
 private:
     int indent_ = 0;
     bool addIndent_ = true;
-    IFilePrinter& proxyPrinter_;
+    IFilePrinter* proxyPrinter_ = nullptr;
 };
 
 } // namespace Waffle
