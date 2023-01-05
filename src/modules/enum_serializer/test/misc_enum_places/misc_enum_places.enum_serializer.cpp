@@ -18,6 +18,18 @@ Color FromString<Color>(std::string_view value) {
     if (value == "Blue") {
         return Color::Blue;
     }
+    if (value == "Cyan") {
+        return Color::Cyan;
+    }
+    if (value == "Magenta") {
+        return Color::Magenta;
+    }
+    if (value == "Yellow") {
+        return Color::Yellow;
+    }
+    if (value == "Black") {
+        return Color::Black;
+    }
     throw std::runtime_error("Can't parse value \"" + std::string{value} + "\" to enum type \"Color\"");
 }
 
@@ -33,6 +45,14 @@ OsManager::Type FromString<OsManager::Type>(std::string_view value) {
         return OsManager::OSX;
     }
     throw std::runtime_error("Can't parse value \"" + std::string{value} + "\" to enum type \"OsManager::Type\"");
+}
+
+template<>
+The::Longest::Namespace::Very::Long::Qualified::Name::Value FromString<The::Longest::Namespace::Very::Long::Qualified::Name::Value>(std::string_view value) {
+    if (value == "Foo") {
+        return The::Longest::Namespace::Very::Long::Qualified::Name::Value::Foo;
+    }
+    throw std::runtime_error("Can't parse value \"" + std::string{value} + "\" to enum type \"The::Longest::Namespace::Very::Long::Qualified::Name::Value\"");
 }
 
 } // namespace Waffle
