@@ -105,14 +105,20 @@ int main(int argc, const char** argv) {
     if (argc < 4) {
         llvm::errs() << "please provide paths:\n";
         llvm::errs() << "argv[1] = current binary dir (with compile_commands.json)\n";
-        llvm::errs() << "argv[2] = path to source .cpp file\n";
+        llvm::errs() << "argv[2] = path to source .cpp file (real file path is argv[1]+argv[2])\n";
         llvm::errs() << "argv[3] = dir where to save generated files\n";
         return 1;
     }
 
-    const std::string binaryDir{argv[1]};
-    const std::string filePath{argv[2]};
-    const std::string outputDir{argv[3]};
+    std::string binaryDir{argv[1]};
+    std::string filePath{argv[2]};
+    std::string outputDir{argv[3]};
+
+    if (const auto pos = filePath.find_last_of('/'); pos != std::string::npos) {
+        outputDir += "/";
+        outputDir += filePath.substr(0, pos);
+    }
+    filePath = binaryDir + "/" + filePath;
 
     std::string errorMsg;
     auto db = clang::tooling::CompilationDatabase::autoDetectFromDirectory(binaryDir, errorMsg);

@@ -15,6 +15,10 @@ void NicePrinter::Include(std::string_view file) {
     *this << "#include <" << file << ">\n";
 }
 
+void NicePrinter::IncludeLocal(std::string_view file) {
+    *this << "#include \"" << file << "\"\n";
+}
+
 void NicePrinter::NewLine(int count) {
     for (int i = 0; i < count; ++i) {
         *this << "\n";

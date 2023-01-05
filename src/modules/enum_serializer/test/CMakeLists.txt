@@ -27,9 +27,9 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places/misc_enum_places.enum_serializer.cpp
   COMMAND
     enum_serializer_wafflec
-    ${CMAKE_BINARY_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/misc_enum_places/misc_enum_places.h.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/misc_enum_places
+    ${CMAKE_CURRENT_BINARY_DIR}
+    misc_enum_places/misc_enum_places.h.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}
     > wafflec.out 2> wafflec.err
   DEPENDS
     enum_serializer_wafflec misc_enum_places_header_cpp

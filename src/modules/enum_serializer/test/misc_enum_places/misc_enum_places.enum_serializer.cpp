@@ -6,7 +6,7 @@
 
 #include <waffle/modules/enum_serializer/enum_serializer.h>
 
-#include </home/izaron/WafflePlusPlus/build/modules/enum_serializer/test/misc_enum_places/misc_enum_places.h>
+#include "misc_enum_places.h"
 
 namespace Waffle {
 

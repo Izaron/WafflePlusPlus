@@ -27,7 +27,7 @@ public:
         Printer_.NewLine();
         Printer_.Include("waffle/modules/enum_serializer/enum_serializer.h");
         Printer_.NewLine();
-        Printer_.Include(StringUtil::RemoveLastExt(Ctx_.InFile));
+        Printer_.IncludeLocal(StringUtil::RemoveLastExt(inFile));
         Printer_.NewLine();
 
         Printer_.OpenNamespace();

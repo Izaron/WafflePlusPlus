@@ -11,6 +11,7 @@ public:
 
     void AddPreabmle(std::string_view source);
     void Include(std::string_view file);
+    void IncludeLocal(std::string_view file);
     void NewLine(int count = 1);
     void OpenNamespace();
     void CloseNamespace();
