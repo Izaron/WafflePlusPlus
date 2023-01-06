@@ -4,7 +4,7 @@
 
 namespace Waffle {
 
-//static std::vector<IModulePtr> MODULES;
+static std::vector<IModulePtr> MODULES;
 
 void ModuleRegistry::AddModule(IModulePtr module) {
     MODULES.emplace_back(std::move(module));

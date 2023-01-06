@@ -7,8 +7,6 @@
 
 namespace Waffle {
 
-inline std::vector<IModulePtr> MODULES;
-
 class ModuleRegistry {
 public:
     static void AddModule(IModulePtr module);

@@ -1,4 +1,4 @@
-add_library(module STATIC module.cpp registry.cpp)
+add_library(module OBJECT module.cpp registry.cpp)
 
 enable_testing()
 add_executable(module_test registry_test.cpp)
