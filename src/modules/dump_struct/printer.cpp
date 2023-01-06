@@ -31,31 +31,76 @@ public:
 
         Printer_.OpenNamespace();
         for (const auto* data : Datas_) {
-            PrintRecordDecl(data);
+            PrintRecordDecl(*data);
         }
         Printer_.CloseNamespace();
     }
 
 private:
-    void PrintRecordDecl(const clang::RecordDecl* decl) {
-        const std::string typeName = StringUtil::QualifiedName(*decl);
+    void PrintRecordDecl(const clang::RecordDecl& decl) {
+        const std::string typeName = StringUtil::QualifiedName(decl);
         Printer_ << "template<>\n";
         Printer_ << "std::string DumpStruct(const " << typeName << "& value) {\n";
         Printer_.AddIndent();
         Printer_ << "std::stringstream ss;\n";
-        for (const auto* field : decl->fields()) {
-            PrintField(field);
-        }
+        PrintAllFields(decl);
         Printer_ << "return ss.str();\n";
         Printer_.DecreaseIndent();
         Printer_ << "}\n\n";
     }
 
-    void PrintField(const clang::FieldDecl* decl) {
-        const std::string name = decl->getNameAsString();
-        const auto* type = decl->getType().getTypePtr();
-        if (type->isArithmeticType()) {
-            Printer_ << R"(ss << ")" << name << R"( = " << value.)" << name << R"( << "\n";)" << "\n";
+    void PrintAllFields(const clang::RecordDecl& decl) {
+        StartPrintingLine();
+        Printer_ << R"("{\n";)" << "\n";
+        IncreasePrintIndent();
+        for (const auto* field : decl.fields()) {
+            PrintField(*field);
+        }
+        DecreasePrintIndent();
+        StartPrintingLine();
+        Printer_ << R"("}\n";)" << "\n";
+    }
+
+    void PrintField(const clang::FieldDecl& decl) {
+        const std::string fieldName = decl.getNameAsString();
+        const std::string typeName = GetTypeName(decl);
+        const auto* type = decl.getType().getTypePtr();
+
+        if (type->isArithmeticType() || type->isPointerType()) {
+            StartPrintingLine();
+            Printer_ << "\"" << fieldName << R"( = " << value.)" << fieldName << R"( << "\n";)" << "\n";
+        }
+        else if (typeName == "std::basic_string" || typeName == "std::basic_string_view") {
+            StartPrintingLine();
+            Printer_ << "\"" << fieldName << R"( = \"" << value.)" << fieldName << R"( << "\"\n";)" << "\n";
+        }
+
+        llvm::errs() << "Got type name \"" << typeName << "\"\n";
+    }
+
+    std::string GetTypeName(const clang::FieldDecl& decl) {
+        if (const auto* typeDecl = decl.getType()->getAsTagDecl()) {
+            return StringUtil::QualifiedName(*typeDecl);
+        }
+        return "";
+    }
+
+    void IncreasePrintIndent() {
+        PrintIndent_ += 4;
+    }
+
+    void DecreasePrintIndent() {
+        PrintIndent_ -= 4;
+    }
+
+    void StartPrintingLine() {
+        Printer_ << "ss << ";
+        if (PrintIndent_ > 0) {
+            Printer_ << "\"";
+            for (int i = 0; i < PrintIndent_; ++i) {
+                Printer_ << " ";
+            }
+            Printer_ << "\" << ";
         }
     }
 
@@ -63,6 +108,7 @@ private:
     Context& Ctx_;
     const StructDatas& Datas_;
     NicePrinter Printer_;
+    int PrintIndent_ = 0;
 };
 
 } // namespace
