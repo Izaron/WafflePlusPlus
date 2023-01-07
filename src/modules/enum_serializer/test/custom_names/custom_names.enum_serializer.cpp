@@ -10,9 +10,6 @@
 
 namespace Waffle {
 
-} // namespace Waffle
-namespace Waffle {
-
 template<>
 BookColor FromString<BookColor>(std::string_view value) {
     if (value == "red") {

@@ -50,6 +50,8 @@ function(waffle_generate_template_data)
       xxd -i template.cpp ${CMAKE_CURRENT_BINARY_DIR}/template.cpp.data
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS
+      template.cpp
     COMMENT
       "Generate template.cpp.data for ${CMAKE_CURRENT_SOURCE_DIR}"
   )

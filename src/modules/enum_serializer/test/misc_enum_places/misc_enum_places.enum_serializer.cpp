@@ -10,9 +10,6 @@
 
 namespace Waffle {
 
-} // namespace Waffle
-namespace Waffle {
-
 template<>
 Color FromString<Color>(std::string_view value) {
     if (value == "Red") {

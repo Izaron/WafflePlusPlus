@@ -10,4 +10,52 @@
 
 namespace Waffle {
 
+## for enum in enums
+template<>
+{{ enum.name }} FromString<{{ enum.name }}>(std::string_view value) {
+## for value in enum.values
+## for string in value.strings
+    if (value == "{{ string }}") {
+        return {{ value.name }};
+    }
+## endfor
+## endfor
+    throw std::runtime_error("Can't parse value \"" + std::string{value} + "\" to enum type \"{{ enum.name }}\"");
+}
+
+template<>
+{{ enum.name }} FromStringOrDefault<{{ enum.name }}>(std::string_view value, {{ enum.name }} defaultResult) {
+## for value in enum.values
+## for string in value.strings
+    if (value == "{{ string }}") {
+        return {{ value.name }};
+    }
+## endfor
+## endfor
+    return defaultResult;
+}
+
+template<>
+std::string_view ToString({{ enum.name }} value) {
+    switch (value) {
+## for value in enum.values
+        case {{ value.name }}: {
+            return "{{ first(value.strings) }}";
+        }
+## endfor
+    }
+    __builtin_unreachable();
+}
+
+template<>
+std::span<const {{ enum.name }}> GetAllEnumValues() {
+    static const std::vector<{{ enum.name }}> values{
+## for value in enum.values
+        {{ value.name }},
+## endfor
+    };
+    return values;
+}
+
+## endfor
 } // namespace Waffle
