@@ -1,4 +1,4 @@
-add_library(registry OBJECT module.cpp registry.cpp)
+add_library(registry OBJECT registry.cpp)
 
 enable_testing()
 add_executable(module_test registry_test.cpp)

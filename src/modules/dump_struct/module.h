@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lib/registry/module.h>
+#include <lib/registry/registry.h>
 
 namespace Waffle {
 
