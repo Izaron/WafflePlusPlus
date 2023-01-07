@@ -1,6 +1,6 @@
 add_subdirectory(comment)
 add_subdirectory(driver)
 add_subdirectory(file)
-add_subdirectory(module)
+add_subdirectory(registry)
 add_subdirectory(string_util)
 enable_testing()

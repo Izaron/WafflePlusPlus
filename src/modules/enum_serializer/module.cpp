@@ -3,7 +3,7 @@
 #include "module.h"
 #include "printer.h"
 
-#include <lib/module/registry.h>
+#include <lib/registry/registry.h>
 
 using namespace Waffle;
 

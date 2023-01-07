@@ -1,7 +1,7 @@
 function(waffle_add_executable WAFFLEC_BINARY MODULES)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/null.cpp" "")
   add_executable(${WAFFLEC_BINARY} null.cpp)
-  target_link_libraries(${WAFFLEC_BINARY} driver module file comment string_util clangTooling ${MODULES})
+  target_link_libraries(${WAFFLEC_BINARY} driver file registry comment string_util clangTooling ${MODULES})
 endfunction()
 
 function(waffle_generate WAFFLEC_BINARY HEADER GENERATED_FILES)

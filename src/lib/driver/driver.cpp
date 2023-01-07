@@ -4,7 +4,7 @@
 #include <clang/Tooling/Tooling.h>
 
 #include <lib/file/file.h>
-#include <lib/module/registry.h>
+#include <lib/registry/registry.h>
 
 #include <optional>
 #include <sstream>

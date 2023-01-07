@@ -1,7 +1,7 @@
-add_library(module OBJECT module.cpp registry.cpp)
+add_library(registry OBJECT module.cpp registry.cpp)
 
 enable_testing()
 add_executable(module_test registry_test.cpp)
-target_link_libraries(module_test gtest_main module)
+target_link_libraries(module_test gtest_main registry)
 include(GoogleTest)
 gtest_discover_tests(module_test)
