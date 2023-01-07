@@ -9,8 +9,6 @@ namespace Waffle::DumpStruct {
 
 namespace {
 
-constexpr std::string_view INSERT_BEFORE_EXT = "dump_struct";
-
 #include "template.cpp.data"
 const std::string TEMPLATE = reinterpret_cast<char*>(template_cpp);
 
@@ -23,7 +21,7 @@ public:
 
     void Print() {
         const std::string_view inFile = StringUtil::AfterLastSlash(Ctx_.InFile);
-        const std::string outputFile = StringUtil::InsertBeforeExt(inFile, INSERT_BEFORE_EXT);
+        const std::string outputFile = StringUtil::InsertBeforeExt(inFile, "dump_struct");
         auto& printer = Ctx_.FileManager.GetOrCreateFilePrinter(outputFile);
 
         inja::json dataJson;

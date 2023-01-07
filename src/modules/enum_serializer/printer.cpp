@@ -9,8 +9,6 @@ namespace Waffle::EnumSerializer {
 
 namespace {
 
-constexpr std::string_view INSERT_BEFORE_EXT = "enum_serializer";
-
 #include "template.cpp.data"
 const std::string TEMPLATE = reinterpret_cast<char*>(template_cpp);
 
@@ -23,7 +21,7 @@ public:
 
     void Print() {
         const std::string_view inFile = StringUtil::AfterLastSlash(Ctx_.InFile);
-        const std::string outputFile = StringUtil::InsertBeforeExt(inFile, INSERT_BEFORE_EXT);
+        const std::string outputFile = StringUtil::InsertBeforeExt(inFile, "enum_serializer");
         auto& printer = Ctx_.FileManager.GetOrCreateFilePrinter(outputFile);
 
         inja::json dataJson;
