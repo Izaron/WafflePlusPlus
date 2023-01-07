@@ -1,4 +1,5 @@
 include_directories(${LLVM_INCLUDE_DIRS})
+#configure_file(template.txt template.txt COPYONLY)
 add_library(enum_serializer OBJECT module.cpp collector.cpp printer.cpp)
 add_subdirectory(test)
 enable_testing()
