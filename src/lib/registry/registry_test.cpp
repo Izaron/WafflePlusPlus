@@ -3,21 +3,16 @@
 
 using namespace Waffle;
 
-struct DummyModule : IModule {
-    std::string_view Name() const override { return ""; }
-    std::span<const std::string_view> Commands() const override { return {}; }
-    void Do(Context& /*context*/) const override {};
-};
-
 TEST(RegistryTest, AddModule) {
     for (int i = 0; i < 10; ++i) {
-        IModulePtr dummy;
-        ModuleRegistry::AddModule(std::move(dummy));
+        ModuleRegistry::AddModule(Module{});
     }
     ASSERT_EQ(ModuleRegistry::GetModules().size(), 10);
+    ModuleRegistry::ClearModules();
 }
 
 TEST(RegistryTest, RegistratorMacro) {
-    REGISTER_MODULE(DummyModule);
+    REGISTER_MODULE(dummy, {"hello"}, nullptr);
     ASSERT_EQ(ModuleRegistry::GetModules().size(), 1);
+    ModuleRegistry::ClearModules();
 }

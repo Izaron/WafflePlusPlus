@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <span>
 #include <vector>
 
@@ -17,26 +18,22 @@ struct Context {
     clang::ASTContext& AstContext;
 };
 
-class IModule {
-public:
-    virtual ~IModule() = default;
-    virtual std::string_view Name() const = 0;
-    virtual std::span<const std::string_view> Commands() const = 0;
-    virtual void Do(Context& context) const = 0;
+struct Module {
+    std::string_view Name;
+    std::vector<std::string_view> Commands;
+    std::function<void(Context&)> Func;
 };
-
-using IModulePtr = std::unique_ptr<IModule>;
 
 class ModuleRegistry {
 public:
-    static void AddModule(IModulePtr module);
-    static std::span<IModulePtr> GetModules();
+    static void AddModule(Module module);
+    static const std::vector<Module>& GetModules();
+    static void ClearModules();
 };
 
-template<typename T>
 struct ModuleRegistrator {
-    ModuleRegistrator() {
-        ModuleRegistry::AddModule(std::make_unique<T>());
+    ModuleRegistrator(Module&& module) {
+        ModuleRegistry::AddModule(std::move(module));
     }
 };
 
@@ -44,6 +41,6 @@ struct ModuleRegistrator {
 
 #define MACRO_CONCAT( x, y ) x##y
 
-#define REGISTER_MODULE(Type) \
-static ::Waffle::ModuleRegistrator<Type> \
-MACRO_CONCAT(ModuleRegistrator, Type);
+#define REGISTER_MODULE(Name, Commands, Func) \
+static ::Waffle::ModuleRegistrator \
+MACRO_CONCAT(ModuleRegistrator, Name)(Module{#Name, Commands, Func})

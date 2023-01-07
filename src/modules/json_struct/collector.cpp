@@ -38,11 +38,8 @@ StructDatas CollectStructDatas(clang::ASTContext& ctx) {
     return std::move(collector).GetDatas();
 }
 
-std::span<const std::string_view> Commands() {
-    static const std::vector<std::string_view> COMMANDS = {
-        COMMAND_DUMPABLE,
-    };
-    return COMMANDS;
+std::vector<std::string_view> Commands() {
+    return {COMMAND_DUMPABLE};
 }
 
 } // namespace Waffle::JsonStruct

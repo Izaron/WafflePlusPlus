@@ -27,7 +27,7 @@ public:
             .AstContext = astContext,
         };
         for (const auto& module : ModuleRegistry::GetModules()) {
-            module->Do(ctx);
+            module.Func(ctx);
         }
     }
 
@@ -69,8 +69,7 @@ private:
 std::optional<std::string> BuildCommandsArgs() {
     std::vector<std::string_view> allCommands;
     for (const auto& module : ModuleRegistry::GetModules()) {
-        const auto& moduleCommands = module->Commands();
-        allCommands.insert(allCommands.end(), moduleCommands.begin(), moduleCommands.end());
+        allCommands.insert(allCommands.end(), module.Commands.begin(), module.Commands.end());
     }
     if (allCommands.empty()) {
         return std::nullopt;
@@ -99,7 +98,7 @@ clang::tooling::CommandLineArguments WaffleArgumentsAdjuster(
 
 int main(int argc, const char** argv) {
     for (const auto& module : ModuleRegistry::GetModules()) {
-        llvm::errs() << "module \"" << module->Name() << "\" is available\n";
+        llvm::errs() << "module \"" << module.Name << "\" is available\n";
     }
 
     if (argc < 4) {

@@ -1,17 +1,19 @@
 #include "registry.h"
 
-#include <vector>
-
 namespace Waffle {
 
-static std::vector<IModulePtr> MODULES;
+static std::vector<Module> MODULES;
 
-void ModuleRegistry::AddModule(IModulePtr module) {
+void ModuleRegistry::AddModule(Module module) {
     MODULES.emplace_back(std::move(module));
 }
 
-std::span<IModulePtr> ModuleRegistry::GetModules() {
+const std::vector<Module>& ModuleRegistry::GetModules() {
     return MODULES;
+}
+
+void ModuleRegistry::ClearModules() {
+    MODULES.clear();
 }
 
 } // namespace Waffle

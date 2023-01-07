@@ -63,12 +63,11 @@ EnumDatas CollectEnumDatas(clang::ASTContext& ctx) {
     return std::move(collector).GetDatas();
 }
 
-std::span<const std::string_view> Commands() {
-    static const std::vector<std::string_view> COMMANDS = {
+std::vector<std::string_view> Commands() {
+    return {
         COMMAND_SERIALIZABLE,
         COMMAND_STRING_VALUE,
     };
-    return COMMANDS;
 }
 
 } // namespace Waffle::EnumSerializer
