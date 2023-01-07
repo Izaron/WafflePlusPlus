@@ -1,6 +1,6 @@
 include_directories(${LLVM_INCLUDE_DIRS})
 waffle_generate_template_data()
-add_library(enum_serializer OBJECT module.cpp collector.cpp printer.cpp template.cpp.data)
+add_library(enum_serializer OBJECT registry.cpp collector.cpp printer.cpp template.cpp.data)
 target_include_directories(enum_serializer PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(test)
 enable_testing()
