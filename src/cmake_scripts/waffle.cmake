@@ -22,8 +22,9 @@ function(waffle_generate WAFFLEC_BINARY HEADER GENERATED_FILES)
     VERBATIM)
 
   # link xxx.h.cpp to a library so it will compile
-  string(REPLACE "/" "_" HEADER_STR ${HEADER})
-  add_library("${HEADER_STR}_cpp" "${HEADER}.cpp")
+  set(HEADER_STR "${CMAKE_CURRENT_BINARY_DIR}/${HEADER}_cpp")
+  string(REPLACE "/" "_" HEADER_STR ${HEADER_STR})
+  add_library(${HEADER_STR} "${HEADER}.cpp")
 
   # add command to codegen files
   add_custom_command(
@@ -36,7 +37,7 @@ function(waffle_generate WAFFLEC_BINARY HEADER GENERATED_FILES)
       ${CMAKE_CURRENT_SOURCE_DIR}
       > "${HEADER}.wafflec.out" 2> "${HEADER}.wafflec.err"
     DEPENDS
-      ${WAFFLEC_BINARY} "${HEADER_STR}_cpp"
+      ${WAFFLEC_BINARY} ${HEADER_STR}
     COMMENT
       "Running wafflec generator on ${HEADER}"
     VERBATIM)
