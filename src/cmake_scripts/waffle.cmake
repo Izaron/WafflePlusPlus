@@ -41,3 +41,16 @@ function(waffle_generate WAFFLEC_BINARY HEADER GENERATED_FILES)
       "Running wafflec generator on ${HEADER}"
     VERBATIM)
 endfunction()
+
+function(waffle_generate_template_data)
+  add_custom_command(
+    OUTPUT
+      template.cpp.data
+    COMMAND
+      xxd -i template.cpp ${CMAKE_CURRENT_BINARY_DIR}/template.cpp.data
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT
+      "Generate template.cpp.data for ${CMAKE_CURRENT_SOURCE_DIR}"
+  )
+endfunction()
