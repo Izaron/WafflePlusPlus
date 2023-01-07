@@ -1,6 +1,8 @@
 #include "printer.h"
 
-#include <lib/file/nice_printer.h>
+#include <inja/inja.hpp>
+
+#include <lib/file/file.h>
 #include <lib/string_util/string_util.h>
 
 namespace Waffle::DumpStruct {
@@ -8,6 +10,9 @@ namespace Waffle::DumpStruct {
 namespace {
 
 constexpr std::string_view INSERT_BEFORE_EXT = "dump_struct";
+
+#include "template.cpp.data"
+const std::string TEMPLATE = reinterpret_cast<char*>(template_cpp);
 
 class StructDataPrinter {
 public:
@@ -19,63 +24,59 @@ public:
     void Print() {
         const std::string_view inFile = StringUtil::AfterLastSlash(Ctx_.InFile);
         const std::string outputFile = StringUtil::InsertBeforeExt(inFile, INSERT_BEFORE_EXT);
-        Printer_ = NicePrinter{Ctx_.FileManager.GetOrCreateFilePrinter(outputFile)};
+        auto& printer = Ctx_.FileManager.GetOrCreateFilePrinter(outputFile);
 
-        Printer_.AddPreabmle(StringUtil::RemoveLastExt(inFile));
-        Printer_.Include("sstream");
-        Printer_.NewLine();
-        Printer_.Include("waffle/modules/dump_struct/dump_struct.h");
-        Printer_.NewLine();
-        Printer_.IncludeLocal(StringUtil::RemoveLastExt(inFile));
-        Printer_.NewLine();
-
-        Printer_.OpenNamespace();
+        inja::json dataJson;
+        dataJson["source_file"] = StringUtil::RemoveLastExt(inFile);
         for (const auto* data : Datas_) {
-            PrintRecordDecl(*data);
+            auto& structJson = dataJson["structs"].emplace_back();
+            structJson["name"] = StringUtil::QualifiedName(*data);
+
+            auto& linesJson = structJson["lines"];
+            linesJson = inja::json::array();
+            LinesJson_ = &linesJson;
+            AddFieldLines(*data);
         }
-        Printer_.CloseNamespace();
+
+        inja::Environment env;
+        env.set_trim_blocks(true);
+        env.add_callback("indent", /*num_args=*/1, [](inja::Arguments& args) {
+            int cnt = args.at(0)->get<int>();
+            std::string indent = "";
+            for (int i = 0; i < cnt; ++i) {
+                indent += "    ";
+            }
+            return indent;
+        });
+        printer << env.render(TEMPLATE, dataJson);
     }
 
 private:
-    void PrintRecordDecl(const clang::RecordDecl& decl) {
-        const std::string typeName = StringUtil::QualifiedName(decl);
-        Printer_ << "template<>\n";
-        Printer_ << "std::string DumpStruct(const " << typeName << "& value) {\n";
-        Printer_.AddIndent();
-        Printer_ << "std::stringstream ss;\n";
-        PrintAllFields(decl);
-        Printer_ << "return ss.str();\n";
-        Printer_.DecreaseIndent();
-        Printer_ << "}\n\n";
-    }
-
-    void PrintAllFields(const clang::RecordDecl& decl) {
-        StartPrintingLine();
-        Printer_ << R"("{\n";)" << "\n";
-        IncreasePrintIndent();
+    void AddFieldLines(const clang::RecordDecl& decl) {
         for (const auto* field : decl.fields()) {
-            PrintField(*field);
-        }
-        DecreasePrintIndent();
-        StartPrintingLine();
-        Printer_ << R"("}\n";)" << "\n";
-    }
+            const std::string typeName = GetTypeName(*field);
+            const auto* type = field->getType().getTypePtr();
 
-    void PrintField(const clang::FieldDecl& decl) {
-        const std::string fieldName = decl.getNameAsString();
-        const std::string typeName = GetTypeName(decl);
-        const auto* type = decl.getType().getTypePtr();
+            Path_.emplace_back(field->getNameAsString());
 
-        if (type->isArithmeticType() || type->isPointerType()) {
-            StartPrintingLine();
-            Printer_ << "\"" << fieldName << R"( = " << value.)" << fieldName << R"( << "\n";)" << "\n";
-        }
-        else if (typeName == "std::basic_string" || typeName == "std::basic_string_view") {
-            StartPrintingLine();
-            Printer_ << "\"" << fieldName << R"( = \"" << value.)" << fieldName << R"( << "\"\n";)" << "\n";
-        }
+            inja::json lineJson;
+            lineJson["path"] = Path_;
 
-        llvm::errs() << "Got type name \"" << typeName << "\"\n";
+            if (type->isArithmeticType() || type->isPointerType()) {
+                lineJson["type"] = "simple";
+                LinesJson_->emplace_back(std::move(lineJson));
+            } else if (typeName == "std::basic_string" || typeName == "std::basic_string_view") {
+                lineJson["type"] = "string";
+                LinesJson_->emplace_back(std::move(lineJson));
+            } else if (type->isRecordType()) {
+                lineJson["type"] = "struct";
+                lineJson["struct_name"] = typeName;
+                LinesJson_->emplace_back(std::move(lineJson));
+                AddFieldLines(*type->getAsRecordDecl());
+            }
+
+            Path_.erase(Path_.end());
+        }
     }
 
     std::string GetTypeName(const clang::FieldDecl& decl) {
@@ -85,30 +86,11 @@ private:
         return "";
     }
 
-    void IncreasePrintIndent() {
-        PrintIndent_ += 4;
-    }
-
-    void DecreasePrintIndent() {
-        PrintIndent_ -= 4;
-    }
-
-    void StartPrintingLine() {
-        Printer_ << "ss << ";
-        if (PrintIndent_ > 0) {
-            Printer_ << "\"";
-            for (int i = 0; i < PrintIndent_; ++i) {
-                Printer_ << " ";
-            }
-            Printer_ << "\" << ";
-        }
-    }
-
 private:
     Context& Ctx_;
     const StructDatas& Datas_;
-    NicePrinter Printer_;
-    int PrintIndent_ = 0;
+    inja::json* LinesJson_ = nullptr;
+    inja::json Path_;
 };
 
 } // namespace

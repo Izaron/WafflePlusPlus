@@ -12,25 +12,72 @@ namespace Waffle {
 template<>
 std::string DumpStruct(const Test0& value) {
     std::stringstream ss;
-    ss << "{\n";
-    ss << "}\n";
     return ss.str();
 }
 
 template<>
 std::string DumpStruct(const Test1& value) {
     std::stringstream ss;
-    ss << "{\n";
-    ss << "    " << "val1 = " << value.val1 << "\n";
-    ss << "    " << "val2 = " << value.val2 << "\n";
-    ss << "    " << "val3 = " << value.val3 << "\n";
-    ss << "    " << "val4 = " << value.val4 << "\n";
-    ss << "    " << "val5 = " << value.val5 << "\n";
-    ss << "    " << "val8 = \"" << value.val8 << "\"\n";
-    ss << "    " << "val9 = \"" << value.val9 << "\"\n";
-    ss << "    " << "val10 = " << value.val10 << "\n";
-    ss << "    " << "val11 = " << value.val11 << "\n";
-    ss << "}\n";
+    ss << "val1 = ";
+    ss << value.val1;
+    ss << "\n";
+
+    ss << "val2 = ";
+    ss << value.val2;
+    ss << "\n";
+
+    ss << "val3 = ";
+    ss << value.val3;
+    ss << "\n";
+
+    ss << "val4 = ";
+    ss << value.val4;
+    ss << "\n";
+
+    ss << "val5 = ";
+    ss << value.val5;
+    ss << "\n";
+
+    ss << "val6 = ";
+    ss << "EmptyStruct";
+    ss << "\n";
+
+    ss << "val7 = ";
+    ss << "NestedStruct";
+    ss << "\n";
+
+    ss << "    val1 = ";
+    ss << value.val7.val1;
+    ss << "\n";
+
+    ss << "    val2 = ";
+    ss << "NestedNestedStruct";
+    ss << "\n";
+
+    ss << "        val1 = ";
+    ss << "\"" << value.val7.val2.val1 << "\"";
+    ss << "\n";
+
+    ss << "    val3 = ";
+    ss << value.val7.val3;
+    ss << "\n";
+
+    ss << "val8 = ";
+    ss << "\"" << value.val8 << "\"";
+    ss << "\n";
+
+    ss << "val9 = ";
+    ss << "\"" << value.val9 << "\"";
+    ss << "\n";
+
+    ss << "val10 = ";
+    ss << value.val10;
+    ss << "\n";
+
+    ss << "val11 = ";
+    ss << value.val11;
+    ss << "\n";
+
     return ss.str();
 }
 

@@ -28,14 +28,12 @@ public:
 
         inja::json dataJson;
         dataJson["source_file"] = StringUtil::RemoveLastExt(inFile);
-        auto& enumsJson = dataJson["enums"];
         for (const auto& data : Datas_) {
-            auto& enumJson = enumsJson.emplace_back();
+            auto& enumJson = dataJson["enums"].emplace_back();
             enumJson["name"] = StringUtil::QualifiedName(*data.Decl);
 
-            auto& valuesJson = enumJson["values"];
             for (const auto& [constantDecl, stringValues] : data.Constants) {
-                auto& valueJson = valuesJson.emplace_back();
+                auto& valueJson = enumJson["values"].emplace_back();
                 valueJson["name"] = StringUtil::QualifiedName(*constantDecl);
                 for (const auto& stringValue : stringValues) {
                     valueJson["strings"].emplace_back(stringValue);

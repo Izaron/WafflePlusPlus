@@ -11,8 +11,9 @@ TEST(DumpStruct, SimpleStructTest1) {
     value.val3 = 3;
     value.val4 = 4;
     value.val5 = 5;
-    //value.val6
-    //value.val7
+    value.val7.val1 = 71;
+    value.val7.val2.val1 = "i'm a nested string";
+    value.val7.val3 = 73;
     value.val8 = "very_cool_string";
     value.val9 = "string_views are also cool";
     value.val10 = reinterpret_cast<void*>(0xDEADF00D);
@@ -24,6 +25,12 @@ val2 = 2
 val3 = 3
 val4 = 4
 val5 = 5
+val6 = EmptyStruct
+val7 = NestedStruct
+    val1 = 71
+    val2 = NestedNestedStruct
+        val1 = "i'm a nested string"
+    val3 = 73
 val8 = "very_cool_string"
 val9 = "string_views are also cool"
 val10 = 0xdeadf00d
