@@ -4,8 +4,8 @@
 
 #include <lib/registry/registry.h>
 
-namespace Waffle::JsonStruct {
+namespace Waffle::JsonDump {
 
 void PrintStructDatas(Context& ctx, const StructDatas& structDatas);
 
-} // namespace Waffle::JsonStruct
+} // namespace Waffle::JsonDump

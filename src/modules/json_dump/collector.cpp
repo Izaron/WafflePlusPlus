@@ -4,7 +4,7 @@
 
 #include <clang/AST/RecursiveASTVisitor.h>
 
-namespace Waffle::JsonStruct {
+namespace Waffle::JsonDump {
 
 namespace {
 
@@ -42,4 +42,4 @@ std::vector<std::string_view> Commands() {
     return {COMMAND_DUMPABLE};
 }
 
-} // namespace Waffle::JsonStruct
+} // namespace Waffle::JsonDump

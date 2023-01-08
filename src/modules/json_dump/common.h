@@ -2,8 +2,8 @@
 
 #include <clang/AST/Decl.h>
 
-namespace Waffle::JsonStruct {
+namespace Waffle::JsonDump {
 
 using StructDatas = std::vector<const clang::RecordDecl*>;
 
-} // namespace Waffle::JsonStruct
+} // namespace Waffle::JsonDump

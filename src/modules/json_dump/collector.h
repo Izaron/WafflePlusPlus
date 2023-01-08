@@ -4,9 +4,9 @@
 
 #include <span>
 
-namespace Waffle::JsonStruct {
+namespace Waffle::JsonDump {
 
 StructDatas CollectStructDatas(clang::ASTContext& ctx);
 std::vector<std::string_view> Commands();
 
-} // namespace Waffle::JsonStruct
+} // namespace Waffle::JsonDump

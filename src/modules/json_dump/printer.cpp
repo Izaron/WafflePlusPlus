@@ -5,7 +5,7 @@
 #include <lib/file/file.h>
 #include <lib/string_util/string_util.h>
 
-namespace Waffle::JsonStruct {
+namespace Waffle::JsonDump {
 
 namespace {
 
@@ -21,7 +21,7 @@ public:
 
     void Print() {
         const std::string_view inFile = StringUtil::AfterLastSlash(Ctx_.InFile);
-        const std::string outputFile = StringUtil::InsertBeforeExt(inFile, "json_struct");
+        const std::string outputFile = StringUtil::InsertBeforeExt(inFile, "json_dump");
         auto& printer = Ctx_.FileManager.GetOrCreateFilePrinter(outputFile);
 
         inja::json dataJson;
@@ -58,4 +58,4 @@ void PrintStructDatas(Context& ctx, const StructDatas& structDatas) {
     printer.Print();
 }
 
-} // namespace Waffle::JsonStruct
+} // namespace Waffle::JsonDump
