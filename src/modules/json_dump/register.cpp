@@ -5,8 +5,8 @@
 using namespace Waffle;
 
 void JsonDumpDo(Context& ctx) {
-    if (const auto structDatas = JsonDump::CollectStructDatas(ctx.AstContext); !structDatas.empty()) {
-        JsonDump::PrintStructDatas(ctx, structDatas);
+    if (const auto decls = JsonDump::CollectStructDecls(ctx.AstContext); !decls.empty()) {
+        JsonDump::PrintStructDatas(ctx, decls);
     }
 }
 

@@ -8,38 +8,38 @@ namespace Waffle::JsonDump {
 
 namespace {
 
-constexpr std::string_view COMMAND_DUMPABLE = "jsonable";
+constexpr std::string_view COMMAND_JSONABLE = "jsonable";
 
-class StructDataCollector : public clang::RecursiveASTVisitor<StructDataCollector> {
+class StructDeclsCollector : public clang::RecursiveASTVisitor<StructDeclsCollector> {
 public:
-    explicit StructDataCollector(clang::ASTContext& ctx) : Ctx_{ctx} {}
+    explicit StructDeclsCollector(clang::ASTContext& ctx) : Ctx_{ctx} {}
 
     bool VisitRecordDecl(clang::RecordDecl* decl) {
-        if (ParseCommentData(Ctx_, *decl)->FindByName(COMMAND_DUMPABLE)) {
-            Datas_.emplace_back(decl);
+        if (ParseCommentData(Ctx_, *decl)->FindByName(COMMAND_JSONABLE)) {
+            Decls_.emplace_back(decl);
         }
         return true;
     }
 
-    StructDatas&& GetDatas() && {
-        return std::move(Datas_);
+    StructDecls&& GetDecls() && {
+        return std::move(Decls_);
     }
 
 private:
     clang::ASTContext& Ctx_;
-    StructDatas Datas_;
+    StructDecls Decls_;
 };
 
 } // namespace
 
-StructDatas CollectStructDatas(clang::ASTContext& ctx) {
-    StructDataCollector collector{ctx};
+StructDecls CollectStructDecls(clang::ASTContext& ctx) {
+    StructDeclsCollector collector{ctx};
     collector.TraverseDecl(ctx.getTranslationUnitDecl());
-    return std::move(collector).GetDatas();
+    return std::move(collector).GetDecls();
 }
 
 std::vector<std::string_view> Commands() {
-    return {COMMAND_DUMPABLE};
+    return {COMMAND_JSONABLE};
 }
 
 } // namespace Waffle::JsonDump

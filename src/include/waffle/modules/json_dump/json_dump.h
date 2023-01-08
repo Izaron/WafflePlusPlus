@@ -5,6 +5,6 @@
 namespace Waffle {
 
 template<typename T>
-std::string JsonDump(const T& value);
+std::string DumpJson(const T& value);
 
 } // namespace Waffle

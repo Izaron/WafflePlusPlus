@@ -6,6 +6,6 @@
 
 namespace Waffle::JsonDump {
 
-void PrintStructDatas(Context& ctx, const StructDatas& structDatas);
+void PrintStructDatas(Context& ctx, const StructDecls& decls);
 
 } // namespace Waffle::JsonDump

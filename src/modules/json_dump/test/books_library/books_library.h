@@ -15,6 +15,7 @@ struct latlon {
     double lon;
 };
 
+// @jsonable
 struct library {
     std::vector<book> books;
     std::optional<std::string> description;

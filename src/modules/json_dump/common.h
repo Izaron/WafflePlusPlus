@@ -4,6 +4,7 @@
 
 namespace Waffle::JsonDump {
 
-using StructDatas = std::vector<const clang::RecordDecl*>;
+using StructDecl = const clang::RecordDecl*;
+using StructDecls = std::vector<StructDecl>;
 
 } // namespace Waffle::JsonDump
