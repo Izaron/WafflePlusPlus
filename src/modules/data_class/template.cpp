@@ -5,7 +5,27 @@
 
 namespace Waffle {
 
-// ???
+## for class in classes
+// @brief generated from {{ class.stub_name }}
+class {{ class.name }} {
+public:
+## for field in class.fields
+    void {{ setter(field.name) }}({{ field.type }}&& {{ field.name }}) {
+        {{ privateField(field.name) }} = std::move({{ field.name }});
+    }
+    void {{ setter(field.name) }}(const {{ field.type }}& {{ field.name }}) {
+        {{ privateField(field.name) }} = {{ field.name }};
+    }
+    const {{ field.type }}& {{ getter(field.name) }}() const {
+        return {{ privateField(field.name) }};
+    }
 
+## endfor
+private:
+## for field in class.fields
+    {{ field.type }} {{ privateField(field.name) }};
+## endfor
+};
+
+## endfor
 } // namespace Waffle
-

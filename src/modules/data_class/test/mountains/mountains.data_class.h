@@ -5,7 +5,82 @@
 
 namespace Waffle {
 
-// ???
+// @brief generated from model::LatLonStub
+class LatLon {
+public:
+    void SetLatitude(double&& latitude) {
+        latitude_ = std::move(latitude);
+    }
+    void SetLatitude(const double& latitude) {
+        latitude_ = latitude;
+    }
+    const double& GetLatitude() const {
+        return latitude_;
+    }
+
+    void SetLongitude(double&& longitude) {
+        longitude_ = std::move(longitude);
+    }
+    void SetLongitude(const double& longitude) {
+        longitude_ = longitude;
+    }
+    const double& GetLongitude() const {
+        return longitude_;
+    }
+
+private:
+    double latitude_;
+    double longitude_;
+};
+
+// @brief generated from model::MountainStub
+class Mountain {
+public:
+    void SetName(std::optional<std::string>&& name) {
+        name_ = std::move(name);
+    }
+    void SetName(const std::optional<std::string>& name) {
+        name_ = name;
+    }
+    const std::optional<std::string>& GetName() const {
+        return name_;
+    }
+
+    void SetCountry(std::string&& country) {
+        country_ = std::move(country);
+    }
+    void SetCountry(const std::string& country) {
+        country_ = country;
+    }
+    const std::string& GetCountry() const {
+        return country_;
+    }
+
+    void SetPosition(model::LatLonStub&& position) {
+        position_ = std::move(position);
+    }
+    void SetPosition(const model::LatLonStub& position) {
+        position_ = position;
+    }
+    const model::LatLonStub& GetPosition() const {
+        return position_;
+    }
+
+    void SetPeak(double&& peak) {
+        peak_ = std::move(peak);
+    }
+    void SetPeak(const double& peak) {
+        peak_ = peak;
+    }
+    const double& GetPeak() const {
+        return peak_;
+    }
+
+private:
+    std::optional<std::string> name_;
+    std::string country_;
+    model::LatLonStub position_;
+    double peak_;
+};
 
 } // namespace Waffle
-

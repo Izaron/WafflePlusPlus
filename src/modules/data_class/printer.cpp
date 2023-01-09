@@ -1,5 +1,8 @@
 #include "printer.h"
 
+#include <clang/AST/ASTContext.h>
+#include <clang/AST/PrettyPrinter.h>
+
 #include <inja/inja.hpp>
 
 #include <lib/file/file.h>
@@ -10,7 +13,7 @@ namespace Waffle::DataClass {
 namespace {
 
 #include "template.cpp.data"
-const std::string TEMPLATE = reinterpret_cast<char*>(template_cpp);
+const std::string TEMPLATE{(char*)template_cpp, template_cpp_len};
 
 class Printer {
 public:
@@ -26,17 +29,61 @@ public:
         const std::string outputFile = std::string{StringUtil::RemoveLastExt(changedInFile)} + ".h";
         auto& printer = Ctx_.FileManager.GetOrCreateFilePrinter(outputFile);
 
-        inja::json dataJson;
-        dataJson["source_file"] = StringUtil::RemoveLastExt(inFile);
+        DataJson_["source_file"] = StringUtil::RemoveLastExt(inFile);
+        for (const auto& data : Datas_) {
+            AddDataClass(data);
+        }
+
+        llvm::errs() << DataJson_.dump(4) << "\n";
 
         inja::Environment env;
         env.set_trim_blocks(true);
-        printer << env.render(TEMPLATE, dataJson);
+
+        constexpr auto getFieldName = [](inja::Arguments& args) { return args[0]->get<std::string>(); };
+        constexpr auto getFieldNameUpper = [getFieldName](inja::Arguments& args) {
+            auto name = getFieldName(args);
+            name[0] = std::toupper(name[0]);
+            return name;
+        };
+        constexpr auto privateField = [getFieldName](inja::Arguments& args) {
+            return getFieldName(args) + "_";
+        };
+        constexpr auto setter = [getFieldNameUpper](inja::Arguments& args) {
+            return "Set" + getFieldNameUpper(args);
+        };
+        constexpr auto getter = [getFieldNameUpper](inja::Arguments& args) {
+            return "Get" + getFieldNameUpper(args);
+        };
+
+        env.add_callback("privateField", /*num_args=*/1, privateField);
+        env.add_callback("setter", /*num_args=*/1, setter);
+        env.add_callback("getter", /*num_args=*/1, getter);
+
+        printer << env.render(TEMPLATE, DataJson_);
+    }
+
+private:
+    void AddDataClass(const ClassData& data) {
+        auto& classJson = DataJson_["classes"].emplace_back();
+        classJson["name"] = data.Name;
+
+        const auto& decl = *data.Decl;
+        classJson["stub_name"] = StringUtil::QualifiedName(*data.Decl);
+
+        for (const auto field : decl.fields()) {
+            auto& fieldJson = classJson["fields"].emplace_back();
+            fieldJson["name"] = field->getNameAsString();
+
+            auto printingPolicy = Ctx_.AstContext.getPrintingPolicy();
+            printingPolicy.SuppressTagKeyword = true;
+            fieldJson["type"] = field->getType().getAsString(printingPolicy);
+        }
     }
 
 private:
     Context& Ctx_;
     const ClassDatas& Datas_;
+    inja::json DataJson_;
 };
 
 } // namespace
