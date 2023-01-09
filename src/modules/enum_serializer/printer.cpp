@@ -10,7 +10,7 @@ namespace Waffle::EnumSerializer {
 namespace {
 
 #include "template.cpp.data"
-const std::string TEMPLATE = reinterpret_cast<char*>(template_cpp);
+const std::string TEMPLATE{(char*)template_cpp, template_cpp_len};
 
 class Printer {
 public:

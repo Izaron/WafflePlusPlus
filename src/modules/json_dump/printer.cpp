@@ -13,7 +13,7 @@ namespace Waffle::JsonDump {
 namespace {
 
 #include "template.cpp.data"
-const std::string TEMPLATE = reinterpret_cast<char*>(template_cpp);
+const std::string TEMPLATE{(char*)template_cpp, template_cpp_len};
 
 const std::unordered_set<std::string> JSON_STRING_TYPES = {
     "std::basic_string", "std::basic_string_view",
