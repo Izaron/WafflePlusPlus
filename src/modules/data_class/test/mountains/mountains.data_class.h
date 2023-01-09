@@ -50,13 +50,13 @@ public:
         return country_;
     }
 
-    void SetPosition(model::LatLonStub&& position) {
+    void SetPosition(LatLon&& position) {
         position_ = std::move(position);
     }
-    void SetPosition(const model::LatLonStub& position) {
+    void SetPosition(const LatLon& position) {
         position_ = position;
     }
-    const model::LatLonStub& GetPosition() const {
+    const LatLon& GetPosition() const {
         return position_;
     }
 
@@ -70,7 +70,7 @@ public:
 private:
     std::optional<std::string> name_;
     std::string country_;
-    model::LatLonStub position_;
+    LatLon position_;
     double peak_;
 };
 

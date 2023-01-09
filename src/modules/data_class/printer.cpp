@@ -29,6 +29,10 @@ public:
         const std::string outputFile = std::string{StringUtil::RemoveLastExt(changedInFile)} + ".h";
         auto& printer = Ctx_.FileManager.GetOrCreateFilePrinter(outputFile);
 
+        for (const auto& data : Datas_) {
+            GeneratedTypeNames_.emplace(StringUtil::QualifiedName(*data.Decl), data.Name);
+        }
+
         DataJson_["source_file"] = StringUtil::RemoveLastExt(inFile);
         for (const auto& data : Datas_) {
             AddDataClass(data);
@@ -73,13 +77,22 @@ private:
         for (const auto field : decl.fields()) {
             auto& fieldJson = classJson["fields"].emplace_back();
             fieldJson["name"] = field->getNameAsString();
-
-            auto printingPolicy = Ctx_.AstContext.getPrintingPolicy();
-            printingPolicy.SuppressTagKeyword = true;
-            fieldJson["type"] = field->getType().getAsString(printingPolicy);
-
+            fieldJson["type"] = GetGeneratedTypeName(*field);
             fieldJson["is_light_type"] = IsLightType(*field->getType().getTypePtr());
         }
+    }
+
+    std::string GetGeneratedTypeName(const clang::FieldDecl& field) {
+        static const auto printingPolicy = std::invoke([this]{
+            auto p = Ctx_.AstContext.getPrintingPolicy();
+            p.SuppressTagKeyword = true;
+            return p;
+        });
+        std::string name = field.getType().getAsString(printingPolicy);
+        if (const auto iter = GeneratedTypeNames_.find(name); iter != GeneratedTypeNames_.end()) {
+            return iter->second;
+        }
+        return name;
     }
 
     bool IsLightType(const clang::Type& type) {
@@ -90,6 +103,7 @@ private:
 private:
     Context& Ctx_;
     const ClassDatas& Datas_;
+    std::unordered_map<std::string, std::string> GeneratedTypeNames_;
     inja::json DataJson_;
 };
 
