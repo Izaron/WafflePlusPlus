@@ -6,10 +6,10 @@
 
 using namespace Waffle;
 
-void EnumSerializerDo(Context& ctx) {
-    if (const auto enumDatas = EnumSerializer::CollectEnumDatas(ctx.AstContext); !enumDatas.empty()) {
-        EnumSerializer::PrintEnumDatas(ctx, enumDatas);
+static void Do(Context& ctx) {
+    if (const auto datas = EnumSerializer::Collect(ctx.AstContext); !datas.empty()) {
+        EnumSerializer::Print(ctx, datas);
     }
 }
 
-REGISTER_MODULE(enum_serializer, EnumSerializer::Commands(), EnumSerializerDo);
+REGISTER_MODULE(enum_serializer, EnumSerializer::Commands(), Do);

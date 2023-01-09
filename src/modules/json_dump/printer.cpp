@@ -25,9 +25,9 @@ const std::unordered_set<std::string> JSON_NULLABLE_TYPES = {
     "std::optional",
 };
 
-class StructDeclsPrinter {
+class Printer {
 public:
-    explicit StructDeclsPrinter(Context& ctx, const StructDecls& decls)
+    explicit Printer(Context& ctx, const StructDecls& decls)
         : Ctx_{ctx}
     {
         for (const auto decl : decls) {
@@ -140,8 +140,8 @@ private:
 
 } // namespace
 
-void PrintStructDatas(Context& ctx, const StructDecls& decls) {
-    StructDeclsPrinter printer{ctx, decls};
+void Print(Context& ctx, const StructDecls& decls) {
+    Printer printer{ctx, decls};
     printer.Print();
 }
 

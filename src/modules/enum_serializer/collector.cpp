@@ -12,9 +12,9 @@ namespace {
 constexpr std::string_view COMMAND_SERIALIZABLE = "serializable";
 constexpr std::string_view COMMAND_STRING_VALUE = "stringvalue";
 
-class EnumDataCollector : public clang::RecursiveASTVisitor<EnumDataCollector> {
+class Collector : public clang::RecursiveASTVisitor<Collector> {
 public:
-    explicit EnumDataCollector(clang::ASTContext& ctx) : Ctx_{ctx} {}
+    explicit Collector(clang::ASTContext& ctx) : Ctx_{ctx} {}
 
     bool VisitEnumDecl(clang::EnumDecl* decl) {
         if (ParseCommentData(Ctx_, *decl)->FindByName(COMMAND_SERIALIZABLE)) {
@@ -57,8 +57,8 @@ private:
 
 } // namespace
 
-EnumDatas CollectEnumDatas(clang::ASTContext& ctx) {
-    EnumDataCollector collector{ctx};
+EnumDatas Collect(clang::ASTContext& ctx) {
+    Collector collector{ctx};
     collector.TraverseDecl(ctx.getTranslationUnitDecl());
     return std::move(collector).GetDatas();
 }

@@ -12,9 +12,9 @@ namespace {
 #include "template.cpp.data"
 const std::string TEMPLATE = reinterpret_cast<char*>(template_cpp);
 
-class EnumDataPrinter {
+class Printer {
 public:
-    explicit EnumDataPrinter(Context& ctx, const EnumDatas& datas)
+    explicit Printer(Context& ctx, const EnumDatas& datas)
         : Ctx_{ctx}
         , Datas_{datas}
     {}
@@ -48,8 +48,8 @@ private:
 
 } // namespace
 
-void PrintEnumDatas(Context& ctx, const EnumDatas& enumDatas) {
-    EnumDataPrinter printer{ctx, enumDatas};
+void Print(Context& ctx, const EnumDatas& enumDatas) {
+    Printer printer{ctx, enumDatas};
     printer.Print();
 }
 

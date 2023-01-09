@@ -4,10 +4,10 @@
 
 using namespace Waffle;
 
-void JsonDumpDo(Context& ctx) {
-    if (const auto decls = JsonDump::CollectStructDecls(ctx.AstContext); !decls.empty()) {
-        JsonDump::PrintStructDatas(ctx, decls);
+static void Do(Context& ctx) {
+    if (const auto decls = JsonDump::Collect(ctx.AstContext); !decls.empty()) {
+        JsonDump::Print(ctx, decls);
     }
 }
 
-REGISTER_MODULE(json_dump, JsonDump::Commands(), JsonDumpDo);
+REGISTER_MODULE(json_dump, JsonDump::Commands(), Do);

@@ -10,9 +10,9 @@ namespace {
 
 constexpr std::string_view COMMAND_JSONABLE = "jsonable";
 
-class StructDeclsCollector : public clang::RecursiveASTVisitor<StructDeclsCollector> {
+class Collector : public clang::RecursiveASTVisitor<Collector> {
 public:
-    explicit StructDeclsCollector(clang::ASTContext& ctx) : Ctx_{ctx} {}
+    explicit Collector(clang::ASTContext& ctx) : Ctx_{ctx} {}
 
     bool VisitRecordDecl(clang::RecordDecl* decl) {
         if (ParseCommentData(Ctx_, *decl)->FindByName(COMMAND_JSONABLE)) {
@@ -32,8 +32,8 @@ private:
 
 } // namespace
 
-StructDecls CollectStructDecls(clang::ASTContext& ctx) {
-    StructDeclsCollector collector{ctx};
+StructDecls Collect(clang::ASTContext& ctx) {
+    Collector collector{ctx};
     collector.TraverseDecl(ctx.getTranslationUnitDecl());
     return std::move(collector).GetDecls();
 }

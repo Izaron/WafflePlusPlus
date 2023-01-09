@@ -4,7 +4,7 @@
 
 namespace Waffle::JsonDump {
 
-StructDecls CollectStructDecls(clang::ASTContext& ctx);
+StructDecls Collect(clang::ASTContext& ctx);
 std::vector<std::string_view> Commands();
 
 } // namespace Waffle::JsonDump

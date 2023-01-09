@@ -4,7 +4,7 @@
 
 namespace Waffle::EnumSerializer {
 
-EnumDatas CollectEnumDatas(clang::ASTContext& ctx);
+EnumDatas Collect(clang::ASTContext& ctx);
 std::vector<std::string_view> Commands();
 
 } // namespace Waffle::EnumSerializer

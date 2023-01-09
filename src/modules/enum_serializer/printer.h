@@ -6,6 +6,6 @@
 
 namespace Waffle::EnumSerializer {
 
-void PrintEnumDatas(Context& ctx, const EnumDatas& enumDatas);
+void Print(Context& ctx, const EnumDatas& enumDatas);
 
 } // namespace Waffle::EnumSerializer
