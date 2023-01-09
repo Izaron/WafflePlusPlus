@@ -12,7 +12,7 @@ struct LatLonStub {
 // @dataclass Mountain
 struct MountainStub {
     std::optional<std::string> name;
-    std::string country;
+    std::string country; // @getteronly
     LatLonStub position;
     double peak;
 };

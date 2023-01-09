@@ -96,6 +96,7 @@ private:
             fieldJson["name"] = field->getNameAsString();
             fieldJson["type"] = GetGeneratedTypeName(*field);
             fieldJson["is_light_type"] = IsLightType(*field->getType().getTypePtr());
+            fieldJson["has_getter_only"] = data.GetterOnlyFields.contains(field);
         }
     }
 

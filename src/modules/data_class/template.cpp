@@ -25,19 +25,23 @@ public:
 
 ## for field in class.fields
 {% if field.is_light_type %}
+{% if not field.has_getter_only %}
     void {{ setter(field.name) }}({{ field.type }} {{ field.name }}) {
         {{ privateField(field.name) }} = {{ field.name }};
     }
+{% endif %}
     {{ field.type }} {{ getter(field.name) }}() const {
         return {{ privateField(field.name) }};
     }
 {% else %}
+{% if not field.has_getter_only %}
     void {{ setter(field.name) }}({{ field.type }}&& {{ field.name }}) {
         {{ privateField(field.name) }} = std::move({{ field.name }});
     }
     void {{ setter(field.name) }}(const {{ field.type }}& {{ field.name }}) {
         {{ privateField(field.name) }} = {{ field.name }};
     }
+{% endif %}
     const {{ field.type }}& {{ getter(field.name) }}() const {
         return {{ privateField(field.name) }};
     }

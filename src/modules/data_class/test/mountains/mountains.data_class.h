@@ -60,12 +60,6 @@ public:
         return name_;
     }
 
-    void SetCountry(std::string&& country) {
-        country_ = std::move(country);
-    }
-    void SetCountry(const std::string& country) {
-        country_ = country;
-    }
     const std::string& GetCountry() const {
         return country_;
     }
