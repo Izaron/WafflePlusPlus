@@ -10,6 +10,14 @@ namespace Waffle {
 class {{ class.name }} {
 public:
 ## for field in class.fields
+{% if field.is_light_type %}
+    void {{ setter(field.name) }}({{ field.type }} {{ field.name }}) {
+        {{ privateField(field.name) }} = {{ field.name }};
+    }
+    {{ field.type }} {{ getter(field.name) }}() const {
+        return {{ privateField(field.name) }};
+    }
+{% else %}
     void {{ setter(field.name) }}({{ field.type }}&& {{ field.name }}) {
         {{ privateField(field.name) }} = std::move({{ field.name }});
     }
@@ -19,6 +27,7 @@ public:
     const {{ field.type }}& {{ getter(field.name) }}() const {
         return {{ privateField(field.name) }};
     }
+{% endif %}
 
 ## endfor
 private:

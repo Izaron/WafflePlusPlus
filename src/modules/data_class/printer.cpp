@@ -77,7 +77,14 @@ private:
             auto printingPolicy = Ctx_.AstContext.getPrintingPolicy();
             printingPolicy.SuppressTagKeyword = true;
             fieldJson["type"] = field->getType().getAsString(printingPolicy);
+
+            fieldJson["is_light_type"] = IsLightType(*field->getType().getTypePtr());
         }
+    }
+
+    bool IsLightType(const clang::Type& type) {
+        // is void/nullptr_t/enum/integers/floating
+        return type.isFundamentalType();
     }
 
 private:

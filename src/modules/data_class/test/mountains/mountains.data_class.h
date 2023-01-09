@@ -8,23 +8,17 @@ namespace Waffle {
 // @brief generated from model::LatLonStub
 class LatLon {
 public:
-    void SetLatitude(double&& latitude) {
-        latitude_ = std::move(latitude);
-    }
-    void SetLatitude(const double& latitude) {
+    void SetLatitude(double latitude) {
         latitude_ = latitude;
     }
-    const double& GetLatitude() const {
+    double GetLatitude() const {
         return latitude_;
     }
 
-    void SetLongitude(double&& longitude) {
-        longitude_ = std::move(longitude);
-    }
-    void SetLongitude(const double& longitude) {
+    void SetLongitude(double longitude) {
         longitude_ = longitude;
     }
-    const double& GetLongitude() const {
+    double GetLongitude() const {
         return longitude_;
     }
 
@@ -66,13 +60,10 @@ public:
         return position_;
     }
 
-    void SetPeak(double&& peak) {
-        peak_ = std::move(peak);
-    }
-    void SetPeak(const double& peak) {
+    void SetPeak(double peak) {
         peak_ = peak;
     }
-    const double& GetPeak() const {
+    double GetPeak() const {
         return peak_;
     }
 
