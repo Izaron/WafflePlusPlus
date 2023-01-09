@@ -9,6 +9,20 @@ namespace Waffle {
 // @brief generated from {{ class.stub_name }}
 class {{ class.name }} {
 public:
+    explicit {{ class.name }}(
+## for field in class.fields
+        {{ field.type }}{{ ref(field) }} {{ field.name }}{{ commaIfNotLast(loop.is_last) }}
+## endfor
+    )
+## for field in class.fields
+{% if field.is_light_type %}
+        {{ ctorColonOrComma(loop.is_first) }} {{ privateField(field.name) }}({{ field.name }})
+{% else %}
+        {{ ctorColonOrComma(loop.is_first) }} {{ privateField(field.name) }}(std::move({{ field.name }}))
+{% endif %}
+## endfor
+    {}
+
 ## for field in class.fields
 {% if field.is_light_type %}
     void {{ setter(field.name) }}({{ field.type }} {{ field.name }}) {

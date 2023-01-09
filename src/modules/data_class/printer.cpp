@@ -1,5 +1,7 @@
 #include "printer.h"
 
+#include <sstream>
+
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/PrettyPrinter.h>
 
@@ -58,10 +60,25 @@ public:
         constexpr auto getter = [getFieldNameUpper](inja::Arguments& args) {
             return "Get" + getFieldNameUpper(args);
         };
+        constexpr auto ref = [](inja::Arguments& args) {
+            const auto& field = *args[0];
+            return field["is_light_type"] ? "" : "&&";
+        };
+        constexpr auto commaIfNotLast = [](inja::Arguments& args) {
+            const bool isLast = args[0]->get<bool>();
+            return isLast ? "" : ",";
+        };
+        constexpr auto ctorColonOrComma = [](inja::Arguments& args) {
+            const bool isFirst = args[0]->get<bool>();
+            return isFirst ? ":" : ",";
+        };
 
         env.add_callback("privateField", /*num_args=*/1, privateField);
         env.add_callback("setter", /*num_args=*/1, setter);
         env.add_callback("getter", /*num_args=*/1, getter);
+        env.add_callback("ref", /*num_args=*/1, ref);
+        env.add_callback("commaIfNotLast", /*num_args=*/1, commaIfNotLast);
+        env.add_callback("ctorColonOrComma", /*num_args=*/1, ctorColonOrComma);
 
         printer << env.render(TEMPLATE, DataJson_);
     }

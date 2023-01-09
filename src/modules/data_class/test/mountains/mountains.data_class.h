@@ -8,6 +8,14 @@ namespace Waffle {
 // @brief generated from model::LatLonStub
 class LatLon {
 public:
+    explicit LatLon(
+        double latitude,
+        double longitude
+    )
+        : latitude_(latitude)
+        , longitude_(longitude)
+    {}
+
     void SetLatitude(double latitude) {
         latitude_ = latitude;
     }
@@ -30,6 +38,18 @@ private:
 // @brief generated from model::MountainStub
 class Mountain {
 public:
+    explicit Mountain(
+        std::optional<std::string>&& name,
+        std::string&& country,
+        LatLon&& position,
+        double peak
+    )
+        : name_(std::move(name))
+        , country_(std::move(country))
+        , position_(std::move(position))
+        , peak_(peak)
+    {}
+
     void SetName(std::optional<std::string>&& name) {
         name_ = std::move(name);
     }
