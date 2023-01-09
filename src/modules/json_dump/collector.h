@@ -2,8 +2,6 @@
 
 #include "common.h"
 
-#include <span>
-
 namespace Waffle::JsonDump {
 
 StructDecls CollectStructDecls(clang::ASTContext& ctx);
