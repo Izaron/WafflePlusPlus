@@ -14,7 +14,7 @@ class Collector : public clang::RecursiveASTVisitor<Collector> {
 public:
     explicit Collector(clang::ASTContext& ctx) : Ctx_{ctx} {}
 
-    bool VisitRecordDecl(clang::RecordDecl* decl) {
+    bool VisitCXXRecordDecl(clang::CXXRecordDecl* decl) {
         if (ParseCommentData(Ctx_, *decl)->FindByName(COMMAND_GMOCK)) {
             Decls_.emplace_back(decl);
         }

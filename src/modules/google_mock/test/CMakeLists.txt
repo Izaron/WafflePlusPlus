@@ -10,7 +10,7 @@ waffle_generate(
 add_executable(google_mock_test
     test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/turtle/turtle.gmock.h)
-target_link_libraries(google_mock_test gtest_main)
+target_link_libraries(google_mock_test gtest_main gmock_main)
 
 include(GoogleTest)
 gtest_discover_tests(google_mock_test)

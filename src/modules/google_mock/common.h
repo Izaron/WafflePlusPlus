@@ -4,7 +4,7 @@
 
 namespace Waffle::GoogleMock {
 
-using StructDecl = const clang::RecordDecl*;
+using StructDecl = const clang::CXXRecordDecl*;
 using StructDecls = std::vector<StructDecl>;
 
 } // namespace Waffle::GoogleMock

@@ -2,6 +2,7 @@ namespace model {
 
 // @gmock
 class Turtle {
+public:
     virtual ~Turtle() = default;
     virtual void PenUp() = 0;
     virtual void PenDown() = 0;
