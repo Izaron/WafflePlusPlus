@@ -22,10 +22,6 @@ find_package(Clang REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Found Clang ${Clang_PACKAGE_VERSION}")
 
-# include jinja2cpp
-set(jinja2cpp_DIR "/home/izaron/jinja2cpp/lib/jinja2cpp")
-find_package(jinja2cpp REQUIRED)
-
 # add subdirectories
 add_subdirectory(bin)
 add_subdirectory(lib)
