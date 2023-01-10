@@ -1,10 +1,13 @@
 #pragma once
 
-#include <string>
+#include <nlohmann/json.hpp>
 
 namespace Waffle {
 
 template<typename T>
-std::string DumpJson(const T& value);
+nlohmann::json ToJson(const T& value);
+
+template<typename T>
+T FromJson(const nlohmann::json& value);
 
 } // namespace Waffle

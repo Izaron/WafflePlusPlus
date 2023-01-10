@@ -65,36 +65,30 @@ private:
         auto& fieldsJson = structJson["fields"];
         for (const auto field : decl->fields()) {
             auto& fieldJson = fieldsJson.emplace_back();
-            auto& funcJson = fieldJson["func"];
+            auto& funcSuffixJson = fieldJson["func_suffix"];
             fieldJson["name"] = field->getNameAsString();
 
             const auto* type = field->getType().getTypePtr()->getUnqualifiedDesugaredType();
             const std::string typeName = GetTypeName(*type);
 
-            if (type->isArithmeticType()) {
-                funcJson = "DumpNumber";
-            }
-            else if (type->isBooleanType()) {
-                funcJson = "DumpBoolean";
-            }
-            else if (JSON_STRING_TYPES.contains(typeName)) {
-                funcJson = "DumpString";
-            }
-            else if (JSON_ARRAY_TYPES.contains(typeName)) {
-                funcJson = "DumpArray";
+            if (JSON_ARRAY_TYPES.contains(typeName)) {
+                funcSuffixJson = "Array";
                 if (const auto structDecl = TryGetTemplateArgStructDecl(*type)) {
                     DeclsQueue_.push(structDecl);
                 }
             }
             else if (JSON_NULLABLE_TYPES.contains(typeName)) {
-                funcJson = "DumpNullable";
+                funcSuffixJson = "Nullable";
                 if (const auto structDecl = TryGetTemplateArgStructDecl(*type)) {
                     DeclsQueue_.push(structDecl);
                 }
             }
+            else if (const auto* recordDecl = type->getAsRecordDecl(); recordDecl && !JSON_STRING_TYPES.contains(typeName)) {
+                funcSuffixJson = "Object";
+                DeclsQueue_.push(recordDecl);
+            }
             else {
-                funcJson = "DumpObject";
-                DeclsQueue_.push(type->getAsRecordDecl());
+                funcSuffixJson = "Primitive";
             }
         }
     }

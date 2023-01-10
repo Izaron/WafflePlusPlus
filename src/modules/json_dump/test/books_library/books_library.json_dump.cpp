@@ -20,129 +20,151 @@ namespace Impl {
 template<class, template<class...> class> inline constexpr bool is_specialization = false;
 template<template<class...> class T, class... Args> inline constexpr bool is_specialization<T<Args...>, T> = true;
 
-template<typename T> concept JsonNumber = std::is_arithmetic_v<T>;
-template<typename T> concept JsonString = std::same_as<std::string, T>;
-template<typename T> concept JsonBoolean = std::same_as<bool, T>;
+template<typename T> concept JsonNullable = is_specialization<T, std::optional>;
 template<typename T> concept JsonArray =
     is_specialization<T, std::vector> || is_specialization<T, std::deque> ||
     is_specialization<T, std::list> || is_specialization<T, std::forward_list> ||
     is_specialization<T, std::array>;
-template<typename T> concept JsonObject = std::is_class_v<T>;
-template<typename T> concept JsonNullable = is_specialization<T, std::optional>;
+template<typename T> concept JsonObject = std::is_class_v<T> && !is_specialization<T, std::basic_string>;
 
 template<typename T>
-void DumpRoot(std::stringstream& ss, const T& value);
+void DumpRoot(nlohmann::json& j, const T& value);
 
-template<JsonNumber T>
-void DumpNumber(std::stringstream& ss, const T value) {
-    ss << value;
+template<typename T>
+void ParseRoot(T& t, const nlohmann::json& value);
+
+template<JsonNullable T>
+inline void DumpNullable(nlohmann::json& j, const T& value) {
+    if (value.has_value()) {
+        DumpRoot(j, *value);
+    }
 }
 
-template<JsonString T>
-void DumpString(std::stringstream& ss, const T& value) {
-    ss << '"' << value << '"';
-}
-
-template<JsonBoolean T>
-void DumpBoolean(std::stringstream& ss, const T value) {
-    if (value) {
-        ss << "true";
-    } else {
-        ss << "false";
+template<JsonNullable T>
+inline void ParseNullable(T& t, const nlohmann::json& value) {
+    if (!value.is_null()) {
+        ParseRoot(t.emplace(), value);
     }
 }
 
 template<JsonArray T>
-void DumpArray(std::stringstream& ss, const T& value) {
-    ss << "[";
+void DumpArray(nlohmann::json& j, const T& value) {
     for (auto iter = value.begin(); iter != value.end(); ++iter) {
-        if (iter != value.begin()) {
-            ss << ",";
-        }
-        DumpRoot(ss, *iter);
+        DumpRoot(j.emplace_back(), *iter);
     }
-    ss << "]";
 }
 
-template<JsonNullable T>
-inline void DumpNullable(std::stringstream& ss, const T& value) {
-    if (value.has_value()) {
-        DumpRoot(ss, *value);
-    } else {
-        ss << "null";
+template<JsonArray T>
+void ParseArray(T& t, const nlohmann::json& value) {
+    for (auto iter = value.begin(); iter != value.end(); ++iter) {
+        ParseRoot(t.emplace_back(), *iter);
     }
 }
 
 template<JsonObject T>
-void DumpObject(std::stringstream& ss, const T& value);
+void DumpObject(nlohmann::json& j, const T& value);
 
-template<>
-void DumpObject(std::stringstream& ss, const model::latlon& value) {
-    ss << '{';
-    ss << "\"lat\":";
-    DumpNumber(ss, value.lat);
-    ss << ',';
-    ss << "\"lon\":";
-    DumpNumber(ss, value.lon);
-    ss << '}';
-}
+template<JsonObject T>
+void ParseObject(T& t, const nlohmann::json& value);
 
-template<>
-void DumpObject(std::stringstream& ss, const model::book& value) {
-    ss << '{';
-    ss << "\"name\":";
-    DumpString(ss, value.name);
-    ss << ',';
-    ss << "\"author\":";
-    DumpString(ss, value.author);
-    ss << ',';
-    ss << "\"year\":";
-    DumpNumber(ss, value.year);
-    ss << '}';
-}
-
-template<>
-void DumpObject(std::stringstream& ss, const model::library& value) {
-    ss << '{';
-    ss << "\"books\":";
-    DumpArray(ss, value.books);
-    ss << ',';
-    ss << "\"description\":";
-    DumpNullable(ss, value.description);
-    ss << ',';
-    ss << "\"address\":";
-    DumpObject(ss, value.address);
-    ss << '}';
+template<typename T>
+void DumpPrimitive(nlohmann::json& j, const T value) {
+    j = value;
 }
 
 template<typename T>
-void DumpRoot(std::stringstream& ss, const T& value) {
+void ParsePrimitive(T& t, const nlohmann::json& value) {
+    t = value;
+}
+
+template<>
+void DumpObject(nlohmann::json& j, const model::latlon& value) {
+    DumpPrimitive(j["lat"], value.lat);
+    DumpPrimitive(j["lon"], value.lon);
+}
+
+template<>
+void DumpObject(nlohmann::json& j, const model::book& value) {
+    DumpPrimitive(j["name"], value.name);
+    DumpPrimitive(j["author"], value.author);
+    DumpPrimitive(j["year"], value.year);
+}
+
+template<>
+void DumpObject(nlohmann::json& j, const model::library& value) {
+    DumpArray(j["books"], value.books);
+    DumpNullable(j["description"], value.description);
+    DumpObject(j["address"], value.address);
+}
+
+template<>
+void ParseObject(model::latlon& t, const nlohmann::json& value) {
+    ParsePrimitive(t.lat, value["lat"]);
+    ParsePrimitive(t.lon, value["lon"]);
+}
+
+template<>
+void ParseObject(model::book& t, const nlohmann::json& value) {
+    ParsePrimitive(t.name, value["name"]);
+    ParsePrimitive(t.author, value["author"]);
+    ParsePrimitive(t.year, value["year"]);
+}
+
+template<>
+void ParseObject(model::library& t, const nlohmann::json& value) {
+    ParseArray(t.books, value["books"]);
+    ParseNullable(t.description, value["description"]);
+    ParseObject(t.address, value["address"]);
+}
+
+template<typename T>
+void DumpRoot(nlohmann::json& j, const T& value) {
     if constexpr (JsonNullable<T>) {
-        DumpNullable(ss, value);
-    } else if constexpr (JsonNumber<T>) {
-        DumpNumber(ss, value);
-    } else if constexpr (JsonString<T>) {
-        DumpString(ss, value);
-    } else if constexpr (JsonBoolean<T>) {
-        DumpBoolean(ss, value);
+        DumpNullable(j, value);
     } else if constexpr (JsonArray<T>) {
-        DumpArray(ss, value);
+        DumpArray(j, value);
     } else if constexpr (JsonObject<T>) {
-        DumpObject(ss, value);
+        DumpObject(j, value);
+    } else {
+        DumpPrimitive(j, value);
+    }
+}
+
+template<typename T>
+void ParseRoot(T& t, const nlohmann::json& value) {
+    if constexpr (JsonNullable<T>) {
+        ParseNullable(t, value);
+    } else if constexpr (JsonArray<T>) {
+        ParseArray(t, value);
+    } else if constexpr (JsonObject<T>) {
+        ParseObject(t, value);
+    } else {
+        ParsePrimitive(t, value);
     }
 }
 
 } // namespace Impl
 
 template<typename T>
-std::string DumpJson(const T& value) {
-    std::stringstream ss;
-    Impl::DumpRoot(ss, value);
-    return ss.str();
+nlohmann::json ToJson(const T& value) {
+    nlohmann::json j;
+    Impl::DumpRoot(j, value);
+    return j;
 }
 
-template std::string DumpJson<model::latlon>(const model::latlon&);
-template std::string DumpJson<model::book>(const model::book&);
-template std::string DumpJson<model::library>(const model::library&);
+template nlohmann::json ToJson<model::latlon>(const model::latlon&);
+template nlohmann::json ToJson<model::book>(const model::book&);
+template nlohmann::json ToJson<model::library>(const model::library&);
+
+template<typename T>
+T FromJson(const nlohmann::json& value) {
+    T t;
+    Impl::ParseRoot(t, value);
+    return t;
+}
+
+template model::latlon FromJson<model::latlon>(const nlohmann::json&);
+template model::book FromJson<model::book>(const nlohmann::json&);
+template model::library FromJson<model::library>(const nlohmann::json&);
 
 } // namespace Waffle
