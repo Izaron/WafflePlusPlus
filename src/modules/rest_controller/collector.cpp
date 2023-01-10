@@ -25,9 +25,7 @@ public:
             data.Decl = decl;
 
             for (const auto methodDecl : decl->methods()) {
-                if (const auto httpMethod = TryGetHttpMethod(*methodDecl)) {
-                    data.Mapping.emplace(methodDecl, *httpMethod);
-                }
+                TryAddMethod(data, *methodDecl);
             }
         }
         return true;
@@ -38,18 +36,19 @@ public:
     }
 
 private:
-    std::optional<std::string_view> TryGetHttpMethod(const clang::CXXMethodDecl& decl) {
+    void TryAddMethod(StructData& structData, const clang::CXXMethodDecl& decl) {
         static const std::unordered_map<std::string_view, std::string_view> COMMAND_TO_METHOD = {
             {COMMAND_GET_MAPPING, "GET"},
             {COMMAND_POST_MAPPING, "POST"},
             {COMMAND_DELETE_MAPPING, "DELETE"},
         };
         for (const auto& [command, method] : COMMAND_TO_METHOD) {
-            if (ParseCommentData(Ctx_, decl)->FindByName(command)) {
-                return method;
+            if (auto commentData = ParseCommentData(Ctx_, decl)->FindByName(command)) {
+                auto methodData = MethodData{.HttpMethod = std::string{method}, .Mapping = commentData->Text, .MethodDecl = &decl};
+                structData.MethodDatas.emplace_back(std::move(methodData));
+                return;
             }
         }
-        return std::nullopt;
     }
 
 private:

@@ -16,19 +16,7 @@ struct HttpResponse {
     std::string Body;
 };
 
-class IRestController {
-public:
-    virtual HttpResponse ProcessRequest(const HttpRequest& httpRequest) = 0;
-};
-
 template<typename Handler>
-class RestController : public IRestController {
-public:
-    RestController(std::shared_ptr<Handler> handler);
-    HttpResponse ProcessRequest(const HttpRequest& httpRequest) override;
-private:
-    class Impl;
-    std::unique_ptr<Impl> Impl_;
-};
+[[nodiscard]] HttpResponse ProcessRequest(Handler& handler, const HttpRequest& httpRequest);
 
 } // namespace Waffle

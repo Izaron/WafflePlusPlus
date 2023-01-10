@@ -5,6 +5,7 @@
 namespace model {
 
 struct Employee {
+    size_t Id;
     std::string Name;
     double Salary;
 };

@@ -4,12 +4,17 @@
 
 namespace Waffle::RestController {
 
+struct MethodData {
+    std::string HttpMethod;
+    std::string Mapping;
+    const clang::CXXMethodDecl* MethodDecl;
+};
+
 struct StructData {
     const clang::CXXRecordDecl* Decl;
-
-    // @brief mapping from method to httpType
-    std::unordered_map<const clang::CXXMethodDecl*, std::string_view> Mapping; 
+    std::vector<MethodData> MethodDatas;
 };
+
 using StructDatas = std::vector<StructData>;
 
 } // namespace Waffle::RestController
