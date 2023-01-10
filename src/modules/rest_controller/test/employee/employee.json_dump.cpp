@@ -34,14 +34,14 @@ template<typename T>
 void ParseRoot(T& t, const nlohmann::json& value);
 
 template<JsonNullable T>
-inline void DumpNullable(nlohmann::json& j, const T& value) {
+void DumpNullable(nlohmann::json& j, const T& value) {
     if (value.has_value()) {
         DumpRoot(j, *value);
     }
 }
 
 template<JsonNullable T>
-inline void ParseNullable(T& t, const nlohmann::json& value) {
+void ParseNullable(T& t, const nlohmann::json& value) {
     if (!value.is_null()) {
         ParseRoot(t.emplace(), value);
     }
@@ -78,14 +78,14 @@ void ParsePrimitive(T& t, const nlohmann::json& value) {
 }
 
 template<>
-void DumpObject(nlohmann::json& j, const model::Employee& value) {
+inline void DumpObject(nlohmann::json& j, const model::Employee& value) {
     DumpPrimitive(j["Id"], value.Id);
     DumpPrimitive(j["Name"], value.Name);
     DumpPrimitive(j["Salary"], value.Salary);
 }
 
 template<>
-void ParseObject(model::Employee& t, const nlohmann::json& value) {
+inline void ParseObject(model::Employee& t, const nlohmann::json& value) {
     ParsePrimitive(t.Id, value["Id"]);
     ParsePrimitive(t.Name, value["Name"]);
     ParsePrimitive(t.Salary, value["Salary"]);

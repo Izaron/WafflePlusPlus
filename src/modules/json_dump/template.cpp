@@ -34,14 +34,14 @@ template<typename T>
 void ParseRoot(T& t, const nlohmann::json& value);
 
 template<JsonNullable T>
-inline void DumpNullable(nlohmann::json& j, const T& value) {
+void DumpNullable(nlohmann::json& j, const T& value) {
     if (value.has_value()) {
         DumpRoot(j, *value);
     }
 }
 
 template<JsonNullable T>
-inline void ParseNullable(T& t, const nlohmann::json& value) {
+void ParseNullable(T& t, const nlohmann::json& value) {
     if (!value.is_null()) {
         ParseRoot(t.emplace(), value);
     }
@@ -79,7 +79,7 @@ void ParsePrimitive(T& t, const nlohmann::json& value) {
 
 ## for struct in structs
 template<>
-void DumpObject(nlohmann::json& j, const {{ struct.name }}& value) {
+inline void DumpObject(nlohmann::json& j, const {{ struct.name }}& value) {
 ## for field in struct.fields
     Dump{{ field.func_suffix }}(j["{{ field.name }}"], value.{{ field.name }});
 ## endfor
@@ -88,7 +88,7 @@ void DumpObject(nlohmann::json& j, const {{ struct.name }}& value) {
 ## endfor
 ## for struct in structs
 template<>
-void ParseObject({{ struct.name }}& t, const nlohmann::json& value) {
+inline void ParseObject({{ struct.name }}& t, const nlohmann::json& value) {
 ## for field in struct.fields
     Parse{{ field.func_suffix }}(t.{{ field.name }}, value["{{ field.name }}"]);
 ## endfor

@@ -34,14 +34,14 @@ template<typename T>
 void ParseRoot(T& t, const nlohmann::json& value);
 
 template<JsonNullable T>
-inline void DumpNullable(nlohmann::json& j, const T& value) {
+void DumpNullable(nlohmann::json& j, const T& value) {
     if (value.has_value()) {
         DumpRoot(j, *value);
     }
 }
 
 template<JsonNullable T>
-inline void ParseNullable(T& t, const nlohmann::json& value) {
+void ParseNullable(T& t, const nlohmann::json& value) {
     if (!value.is_null()) {
         ParseRoot(t.emplace(), value);
     }
@@ -78,40 +78,40 @@ void ParsePrimitive(T& t, const nlohmann::json& value) {
 }
 
 template<>
-void DumpObject(nlohmann::json& j, const model::latlon& value) {
+inline void DumpObject(nlohmann::json& j, const model::latlon& value) {
     DumpPrimitive(j["lat"], value.lat);
     DumpPrimitive(j["lon"], value.lon);
 }
 
 template<>
-void DumpObject(nlohmann::json& j, const model::book& value) {
+inline void DumpObject(nlohmann::json& j, const model::book& value) {
     DumpPrimitive(j["name"], value.name);
     DumpPrimitive(j["author"], value.author);
     DumpPrimitive(j["year"], value.year);
 }
 
 template<>
-void DumpObject(nlohmann::json& j, const model::library& value) {
+inline void DumpObject(nlohmann::json& j, const model::library& value) {
     DumpArray(j["books"], value.books);
     DumpNullable(j["description"], value.description);
     DumpObject(j["address"], value.address);
 }
 
 template<>
-void ParseObject(model::latlon& t, const nlohmann::json& value) {
+inline void ParseObject(model::latlon& t, const nlohmann::json& value) {
     ParsePrimitive(t.lat, value["lat"]);
     ParsePrimitive(t.lon, value["lon"]);
 }
 
 template<>
-void ParseObject(model::book& t, const nlohmann::json& value) {
+inline void ParseObject(model::book& t, const nlohmann::json& value) {
     ParsePrimitive(t.name, value["name"]);
     ParsePrimitive(t.author, value["author"]);
     ParsePrimitive(t.year, value["year"]);
 }
 
 template<>
-void ParseObject(model::library& t, const nlohmann::json& value) {
+inline void ParseObject(model::library& t, const nlohmann::json& value) {
     ParseArray(t.books, value["books"]);
     ParseNullable(t.description, value["description"]);
     ParseObject(t.address, value["address"]);
