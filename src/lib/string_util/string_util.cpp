@@ -4,6 +4,32 @@
 
 namespace Waffle::StringUtil {
 
+namespace {
+
+template<typename Func>
+std::vector<std::string_view> Split(std::string_view s, Func IsDelim) {
+    std::vector<std::string_view> result;
+    int first_non_delim = s.size();
+    int last_non_delim = -1;
+    for (int i = 0; i < s.size(); ++i) {
+        if (IsDelim(s[i])) {
+            if (first_non_delim != s.size()) {
+                result.push_back(s.substr(first_non_delim, last_non_delim - first_non_delim + 1));
+            }
+            first_non_delim = s.size();
+        } else {
+            first_non_delim = std::min(first_non_delim, i);
+            last_non_delim = i;
+        }
+    }
+    if (first_non_delim != s.size()) {
+        result.push_back(s.substr(first_non_delim, last_non_delim - first_non_delim + 1));
+    }
+    return result;
+}
+
+} // namespace
+
 std::string QualifiedName(const clang::NamedDecl& decl) {
     std::string name;
     llvm::raw_string_ostream stream{name};
@@ -36,24 +62,11 @@ std::string_view RemoveLastExt(std::string_view s) {
 }
 
 std::vector<std::string_view> SplitBySpace(std::string_view s) {
-    std::vector<std::string_view> result;
-    int first_non_space = s.size();
-    int last_non_space = -1;
-    for (int i = 0; i < s.size(); ++i) {
-        if (std::isspace(s[i])) {
-            if (first_non_space != s.size()) {
-                result.push_back(s.substr(first_non_space, last_non_space - first_non_space + 1));
-            }
-            first_non_space = s.size();
-        } else {
-            first_non_space = std::min(first_non_space, i);
-            last_non_space = i;
-        }
-    }
-    if (first_non_space != s.size()) {
-        result.push_back(s.substr(first_non_space, last_non_space - first_non_space + 1));
-    }
-    return result;
+    return Split(s, [](char c) { return std::isspace(c); });
+}
+
+std::vector<std::string_view> SplitByDelim(std::string_view s, char delim) {
+    return Split(s, [delim](char c) { return c == delim; });
 }
 
 } // namespace Waffle::StringUtil

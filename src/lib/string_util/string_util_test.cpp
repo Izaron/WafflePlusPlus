@@ -50,3 +50,13 @@ TEST(StringUtilTest, SplitBySpaceSinglePart) {
     ASSERT_EQ(split.size(), 1);
     ASSERT_STREQ(std::string{split[0]}.c_str(), "aaa");
 }
+
+TEST(StringUtilTest, SplitByDelim) {
+    constexpr std::string_view s = "/employees/{id}/info/{type}";
+    const auto split = SplitByDelim(s, '/');
+    ASSERT_EQ(split.size(), 4);
+    ASSERT_STREQ(std::string{split[0]}.c_str(), "employees");
+    ASSERT_STREQ(std::string{split[1]}.c_str(), "{id}");
+    ASSERT_STREQ(std::string{split[2]}.c_str(), "info");
+    ASSERT_STREQ(std::string{split[3]}.c_str(), "{type}");
+}

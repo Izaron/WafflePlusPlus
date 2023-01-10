@@ -23,4 +23,7 @@ std::string_view RemoveLastExt(std::string_view s);
 // " a  b c" -> ["a", "b", "c"]
 std::vector<std::string_view> SplitBySpace(std::string_view s);
 
+// " a/b/c" -> ["a", "b", "c"]
+std::vector<std::string_view> SplitByDelim(std::string_view s, char delim);
+
 } // namespace Waffle::StringUtil
