@@ -1,6 +1,8 @@
+list(APPEND MODULES rest_controller json_dump)
+
 # generate new files
 include(waffle)
-waffle_add_executable(rest_controller_wafflec rest_controller)
+waffle_add_executable(rest_controller_wafflec "${MODULES}")
 waffle_generate(
     rest_controller_wafflec
     employee/employee.h

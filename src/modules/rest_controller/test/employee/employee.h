@@ -4,6 +4,7 @@
 
 namespace model {
 
+// @jsonable
 struct Employee {
     size_t Id;
     std::string Name;
@@ -23,26 +24,37 @@ class EmployeeController {
 public:
     EmployeeController(std::shared_ptr<IEmployeeRepository> repository)
         : repository_{std::move(repository)}
-    {
-    }
+    {}
 
-    // @postmapping /employees
-    void Add(Employee&& employee) {
+    /*
+     * @brief Add a new employee
+     * @postmapping /employees
+     */
+    void Add(/* @requestbody */ Employee&& employee) {
         repository_->Add(std::move(employee));
     }
 
-    // @getmapping /employees/{id}
-    std::optional<Employee> FindById(size_t id) {
+    /*
+     * @brief Get the employee with given ID
+     * @getmapping /employee/{id}
+     */
+    std::optional<Employee> FindById(/* @pathvariable */ size_t id) {
         return repository_->FindById(id);
     }
 
-    // @getmapping /employees
+    /*
+     * @brief Get all employees
+     * @getmapping /employees
+     */
     std::vector<Employee> FindAll() {
         return repository_->FindAll();
     }
 
-    // @deletemapping /employees/{id}
-    void DeleteById(size_t id) {
+    /*
+     * @brief Delete the employee with given ID
+     * @deletemapping /employee/{id}
+     */
+    void DeleteById(/* @pathvariable */ size_t id) {
         repository_->DeleteById(id);
     }
 
