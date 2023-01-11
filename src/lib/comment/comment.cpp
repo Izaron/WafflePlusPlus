@@ -10,6 +10,17 @@ namespace Waffle {
 
 namespace {
 
+std::string StripSpaces(const std::string& s) {
+    std::string_view sv = s;
+    if (!sv.empty() && std::isspace(sv.front())) {
+        sv.remove_prefix(1);
+    }
+    if (!sv.empty() && std::isspace(sv.back())) {
+        sv.remove_suffix(1);
+    }
+    return std::string{sv};
+}
+
 class CommentData : public ICommentData {
 public:
     CommentData(const clang::ASTContext& astContext, const clang::Decl& decl)
@@ -51,7 +62,7 @@ private:
         auto name = std::string{command.getCommandName(AstContext_.getCommentCommandTraits())};
         std::string text;
         if (const auto* paragraph = command.getParagraph()) {
-            text = ParseParagraph(*paragraph);
+            text = StripSpaces(ParseParagraph(*paragraph));
         }
         Commands_.emplace_back(std::move(name), std::move(text));
     }

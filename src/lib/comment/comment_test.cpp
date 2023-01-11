@@ -55,13 +55,13 @@ TEST(CommentTest, Simple) {
     // check existing commands
     auto& brief = *commentData->FindByName("brief");
     ASSERT_STREQ(brief.Name.c_str(), "brief");
-    ASSERT_STREQ(brief.Text.c_str(), " just `foo` value, nothing special ");
+    ASSERT_STREQ(brief.Text.c_str(), "just `foo` value, nothing special");
 
     auto& serializable = *commentData->FindByName("serializable");
     ASSERT_STREQ(serializable.Name.c_str(), "serializable");
-    ASSERT_STREQ(serializable.Text.c_str(), " ");
+    ASSERT_STREQ(serializable.Text.c_str(), "");
 
     auto& stringvalue = *commentData->FindByName("stringvalue");
     ASSERT_STREQ(stringvalue.Name.c_str(), "stringvalue");
-    ASSERT_STREQ(stringvalue.Text.c_str(), " FOO Foo foo");
+    ASSERT_STREQ(stringvalue.Text.c_str(), "FOO Foo foo");
 }
