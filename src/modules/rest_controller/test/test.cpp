@@ -7,7 +7,7 @@ namespace {
 
 class MockEmployeeRepository : public model::IEmployeeRepository {
 public:
-    MOCK_METHOD(void, Add, (model::Employee&&), (override));
+    MOCK_METHOD(void, Add, (model::Employee), (override));
     MOCK_METHOD(std::optional<model::Employee>, FindById, (size_t), (override));
     MOCK_METHOD(std::vector<model::Employee>, FindAll, (), (override));
     MOCK_METHOD(void, DeleteById, (size_t), (override));

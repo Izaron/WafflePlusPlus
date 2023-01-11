@@ -4,10 +4,16 @@
 
 namespace Waffle::RestController {
 
+struct ParamData {
+    const clang::ParmVarDecl* Decl;
+    std::string Command;
+};
+
 struct MethodData {
     std::string HttpMethod;
     std::string Mapping;
-    const clang::CXXMethodDecl* MethodDecl;
+    const clang::CXXMethodDecl* Decl;
+    std::vector<ParamData> ParamDatas;
 };
 
 struct StructData {

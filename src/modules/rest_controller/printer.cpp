@@ -1,5 +1,7 @@
 #include "printer.h"
 
+#include <clang/AST/ASTContext.h>
+
 #include <inja/inja.hpp>
 
 #include <lib/file/file.h>
@@ -40,6 +42,35 @@ private:
     void AddRestController(const StructData& data) {
         auto& structJson = DataJson_["structs"].emplace_back();
         structJson["name"] = StringUtil::QualifiedName(*data.Decl);
+
+        for (const auto& methodData : data.MethodDatas) {
+            const auto& decl = *methodData.Decl;
+            auto& methodJson = structJson["methods"].emplace_back();
+            methodJson["name"] = decl.getNameAsString();
+            methodJson["return_type"] = decl.getReturnType().getAsString();
+            methodJson["http_method"] = methodData.HttpMethod;
+            methodJson["mapping"] = methodData.Mapping;
+
+            auto& paramsJson = methodJson["params"];
+            paramsJson = nlohmann::json::array();
+            for (const auto& paramData : methodData.ParamDatas) {
+                const auto& decl = *paramData.Decl;
+                auto& paramJson = paramsJson.emplace_back();
+                paramJson["name"] = decl.getNameAsString();
+                paramJson["type"] = GetNameWithoutTagKeyword(decl);
+                paramJson["command"] = paramData.Command;
+            }
+        }
+    }
+
+private:
+    std::string GetNameWithoutTagKeyword(const clang::ValueDecl& decl) {
+        static const auto printingPolicy = std::invoke([this]{
+            auto p = Ctx_.AstContext.getPrintingPolicy();
+            p.SuppressTagKeyword = true;
+            return p;
+        });
+        return decl.getType().getAsString(printingPolicy);
     }
 
 private:

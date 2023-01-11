@@ -13,7 +13,7 @@ struct Employee {
 
 class IEmployeeRepository {
 public:
-    virtual void Add(Employee&& employee) = 0;
+    virtual void Add(Employee employee) = 0;
     virtual std::optional<Employee> FindById(size_t id) = 0;
     virtual std::vector<Employee> FindAll() = 0;
     virtual void DeleteById(size_t id) = 0;
@@ -30,7 +30,7 @@ public:
      * @brief Add a new employee
      * @postmapping /employees
      */
-    void Add(/* @requestbody */ Employee&& employee) {
+    void Add(/* @requestbody */ Employee employee) {
         repository_->Add(std::move(employee));
     }
 
