@@ -2,6 +2,7 @@
 // source: {{ source_file }}
 
 #include <memory>
+#include <optional>
 
 #include "{{ source_file }}"
 
@@ -135,110 +136,54 @@ private:
 ## endfor
 // ------------- declare poly_ptr ------------- //
 template<typename T>
-class poly_ptr;
-
-## for struct in structs
-template<>
-class poly_ptr<{{ struct.qualified_name }}> {
+class poly_ptr {
 public:
     poly_ptr() = default;
     poly_ptr(std::nullptr_t) {};
 
     template<typename Object>
-    poly_ptr(Object* object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(*object)}
-    {}
-
-    poly_ref<{{ struct.qualified_name }}> operator*() {
-        check_object();
-        return object_ptr_->make_ref();
-    }
-
-    // TODO(sparkle): make more optimal
-    std::unique_ptr<poly_ref<{{ struct.qualified_name }}>> operator->() {
-        check_object();
-        return std::make_unique<poly_ref<{{ struct.qualified_name }}>>(object_ptr_->make_ref());
-    }
-
-private:
-    void check_object() {
-        if (!object_ptr_) {
-            throw std::runtime_error("poly_ptr<{{ struct.qualified_name }}> is empty");
+    poly_ptr(Object* object) {
+        if (object != nullptr) {
+            ref_.emplace(*object);
         }
     }
 
+    poly_ref<T>& operator*() {
+        return ref_.value();
+    }
+
+    poly_ref<T>* operator->() {
+        return &ref_.value();
+    }
+
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-        virtual poly_ref<{{ struct.qualified_name }}> make_ref() const = 0;
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(Object& object) : object_{object} {}
-        Object& object_;
-
-        poly_ref<{{ struct.qualified_name }}> make_ref() const override {
-            return poly_ref<{{ struct.qualified_name }}>{object_};
-        }
-    };
-
-    std::unique_ptr<object_interface> object_ptr_;
+    std::optional<poly_ref<T>> ref_;
 };
 
-## endfor
 // ------------- declare const_poly_ptr ------------- //
 template<typename T>
-class const_poly_ptr;
-
-## for struct in structs
-template<>
-class const_poly_ptr<{{ struct.qualified_name }}> {
+class const_poly_ptr {
 public:
     const_poly_ptr() = default;
     const_poly_ptr(std::nullptr_t) {};
 
     template<typename Object>
-    const_poly_ptr(const Object* object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(*object)}
-    {}
-
-    const_poly_ref<{{ struct.qualified_name }}> operator*() {
-        check_object();
-        return object_ptr_->make_ref();
-    }
-
-    // TODO(sparkle): make more optimal
-    std::unique_ptr<const_poly_ref<{{ struct.qualified_name }}>> operator->() {
-        check_object();
-        return std::make_unique<const_poly_ref<{{ struct.qualified_name }}>>(object_ptr_->make_ref());
-    }
-
-private:
-    void check_object() {
-        if (!object_ptr_) {
-            throw std::runtime_error("const_poly_ptr<{{ struct.qualified_name }}> is empty");
+    const_poly_ptr(const Object* object) {
+        if (object != nullptr) {
+            ref_.emplace(*object);
         }
     }
 
+    const_poly_ref<T>& operator*() {
+        return ref_.value();
+    }
+
+    const_poly_ref<T>* operator->() {
+        return &ref_.value();
+    }
+
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-        virtual poly_ref<{{ struct.qualified_name }}> make_ref() const = 0;
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(const Object& object) : object_{object} {}
-        const Object& object_;
-
-        const_poly_ref<{{ struct.qualified_name }}> make_ref() const override {
-            return const_poly_ref<{{ struct.qualified_name }}>{object_};
-        }
-    };
-
-    std::unique_ptr<object_interface> object_ptr_;
+    std::optional<const_poly_ref<T>> ref_;
 };
 
-## endfor
 } // namespace Waffle
