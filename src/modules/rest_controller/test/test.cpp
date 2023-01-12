@@ -30,16 +30,15 @@ public:
 
     std::shared_ptr<StrictMock<MockEmployeeRepository>> Repository;
     std::shared_ptr<model::EmployeeController> EmployeeController;
-    std::vector<model::Employee> EmptyEmployees;
-    std::vector<model::Employee> ManyEmployees;
 };
 
 } // namespace
 
 TEST_F(RestControllerEmployee, EmptyFindAll) {
+    std::vector<model::Employee> emptyEmployees;
     EXPECT_CALL(*Repository, FindAll())
         .Times(1)
-        .WillOnce(Return(EmptyEmployees));
+        .WillOnce(Return(emptyEmployees));
 
     auto req = Waffle::HttpRequest{
         .Method = "GET",
@@ -49,6 +48,42 @@ TEST_F(RestControllerEmployee, EmptyFindAll) {
     const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
     ASSERT_EQ(response.StatusCode, 200);
     ASSERT_EQ(response.Body, R"([])");
+}
+
+TEST_F(RestControllerEmployee, SuccessFindAll) {
+    std::vector<model::Employee> manyEmployees;
+    manyEmployees.emplace_back(model::Employee{.Id = 13, .Name = "Mary", .Salary = 1234.56});
+    manyEmployees.emplace_back(model::Employee{.Id = 26, .Name = "Ann", .Salary = 10000});
+    manyEmployees.emplace_back(model::Employee{.Id = 39, .Name = "Jacqueline", .Salary = 7'777'777});
+    EXPECT_CALL(*Repository, FindAll())
+        .Times(1)
+        .WillOnce(Return(manyEmployees));
+
+    auto req = Waffle::HttpRequest{
+        .Method = "GET",
+        .Path = "/employees",
+    };
+
+    const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
+    ASSERT_EQ(response.StatusCode, 200);
+    ASSERT_EQ("\n" + response.Body, R"(
+[
+    {
+        "id": 13,
+        "name": "Mary",
+        "salary": 1234.56
+    },
+    {
+        "id": 26,
+        "name": "Ann",
+        "salary": 10000.0
+    },
+    {
+        "id": 39,
+        "name": "Jacqueline",
+        "salary": 7777777.0
+    }
+])");
 }
 
 TEST_F(RestControllerEmployee, EmptyFindById) {
@@ -64,6 +99,27 @@ TEST_F(RestControllerEmployee, EmptyFindById) {
     const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
     ASSERT_EQ(response.StatusCode, 200);
     ASSERT_EQ(response.Body, R"(null)");
+}
+
+TEST_F(RestControllerEmployee, SuccessFindById) {
+    model::Employee employer{.Id = 13071999, .Name = "Jim", .Salary = 7000};
+    EXPECT_CALL(*Repository, FindById(13071999))
+        .Times(1)
+        .WillOnce(Return(employer));
+
+    auto req = Waffle::HttpRequest{
+        .Method = "GET",
+        .Path = "/employee/13071999",
+    };
+
+    const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
+    ASSERT_EQ(response.StatusCode, 200);
+    ASSERT_EQ("\n" + response.Body, R"(
+{
+    "id": 13071999,
+    "name": "Jim",
+    "salary": 7000.0
+})");
 }
 
 TEST_F(RestControllerEmployee, FailureDeleteById) {
