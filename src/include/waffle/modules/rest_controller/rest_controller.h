@@ -12,7 +12,7 @@ struct HttpRequest {
 };
 
 struct HttpResponse {
-    int Code;
+    int StatusCode;
     std::string Body;
 };
 

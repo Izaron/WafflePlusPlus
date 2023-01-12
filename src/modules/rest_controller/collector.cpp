@@ -20,6 +20,12 @@ constexpr std::string_view COMMAND_DELETE_MAPPING = "deletemapping";
 constexpr std::string_view COMMAND_REQUEST_BODY = "requestbody";
 constexpr std::string_view COMMAND_PATH_VARIABLE = "pathvariable";
 
+const std::unordered_map<std::string_view, std::string_view> COMMAND_TO_METHOD = {
+    {COMMAND_GET_MAPPING, "GET"},
+    {COMMAND_POST_MAPPING, "POST"},
+    {COMMAND_DELETE_MAPPING, "DELETE"},
+};
+
 
 class Collector : public clang::RecursiveASTVisitor<Collector> {
 public:
@@ -42,39 +48,51 @@ public:
     }
 
 private:
-    void TryAddMethod(StructData& structData, const clang::CXXMethodDecl& decl) {
-        static const std::unordered_map<std::string_view, std::string_view> COMMAND_TO_METHOD = {
-            {COMMAND_GET_MAPPING, "GET"},
-            {COMMAND_POST_MAPPING, "POST"},
-            {COMMAND_DELETE_MAPPING, "DELETE"},
-        };
-        for (const auto& [command, method] : COMMAND_TO_METHOD) {
-            if (auto commentData = ParseCommentData(Ctx_, decl)->FindByName(command)) {
-                auto split = StringUtil::SplitBySpace(commentData->Text);
-                if (split.empty()) {
-                    continue;
-                }
-
-                auto& methodData = structData.MethodDatas.emplace_back();
-                methodData.HttpMethod = std::string{method};
-                methodData.Mapping = std::string{split[0]};
-                methodData.Decl = &decl;
-
-                for (const auto param : decl.parameters()) {
-                    param->dump();
-                    auto& paramData = methodData.ParamDatas.emplace_back();
-                    paramData.Decl = param;
-
-                    const auto commentData = ParseCommentData(Ctx_, *param);
-                    if (commentData->FindByName(COMMAND_REQUEST_BODY)) {
-                        paramData.Command = COMMAND_REQUEST_BODY;
-                    } else if (commentData->FindByName(COMMAND_PATH_VARIABLE)) {
-                        paramData.Command = COMMAND_PATH_VARIABLE;
-                    } else {
-                        // FIXME(izaron): throw?
-                    }
-                }
+    std::optional<CommentCommand> GetCommand(const ICommentData& commentData) {
+        for (const auto& [commandName, _] : COMMAND_TO_METHOD) {
+            if (const auto* command = commentData.FindByName(commandName)) {
+                return *command;
             }
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::string> GetParamKind(const ICommentData& commentData, std::string_view paramName) {
+        for (const auto& command : commentData.GetAllCommands()) {
+            if (command.Name != COMMAND_REQUEST_BODY && command.Name != COMMAND_PATH_VARIABLE) {
+                continue;
+            }
+            if (command.Text == paramName) {
+                return command.Name;
+            }
+        }
+        return std::nullopt;
+    }
+
+    void TryAddMethod(StructData& structData, const clang::CXXMethodDecl& decl) {
+        const auto commentData = ParseCommentData(Ctx_, decl);
+        const auto command = GetCommand(*commentData);
+        if (!command.has_value()) {
+            return;
+        }
+
+        auto& methodData = structData.MethodDatas.emplace_back();
+        methodData.HttpMethod = std::string{COMMAND_TO_METHOD.at(command->Name)};
+        methodData.Mapping = std::string{command->Text};
+        methodData.Decl = &decl;
+
+        for (const auto param : decl.parameters()) {
+            param->dump();
+
+            auto kind = GetParamKind(*commentData, param->getNameAsString());
+            if (!kind.has_value()) {
+                // TODO(sparkle): throw?
+                continue;
+            }
+
+            auto& paramData = methodData.ParamDatas.emplace_back();
+            paramData.Decl = param;
+            paramData.Kind = std::move(*kind);
         }
     }
 

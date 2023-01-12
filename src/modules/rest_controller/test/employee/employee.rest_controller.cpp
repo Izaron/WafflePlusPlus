@@ -35,7 +35,11 @@ inline bool PatternMatches(std::string_view pattern, std::string_view requestPat
     return true;
 }
 
-inline std::string_view FindPlaceholderValue(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
+template<typename T>
+T FindPlaceholderValue(std::string_view pattern, std::string_view requestPath, std::string_view placeholder);
+
+template<>
+inline std::string_view FindPlaceholderValue<std::string_view>(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
     // assuming that `PatternMatches(pattern, requestPath) == true`
     PathParts patternParts = StringUtil::SplitByDelim(pattern, '/');
     PathParts requestPathParts = StringUtil::SplitByDelim(requestPath, '/');
@@ -44,21 +48,29 @@ inline std::string_view FindPlaceholderValue(std::string_view pattern, std::stri
     return requestPathParts[std::distance(patternParts.begin(), iter)];
 }
 
+template<>
+inline size_t FindPlaceholderValue<size_t>(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
+    std::string_view str = FindPlaceholderValue<std::string_view>(pattern, requestPath, placeholder);
+    size_t result;
+    std::sscanf(str.data(), "%zu", &result);
+    return result;
+}
+
 } // namespace Impl
 
 template<>
 HttpResponse ProcessRequest(model::EmployeeController& handler, const HttpRequest& request) {
     try {
         HttpResponse response;
-        response.Code = 200;
+        response.StatusCode = 200;
         if (request.Method == "POST" && Impl::PatternMatches("/employees", request.Path)) {
-            model::Employee arg1 = {};
-            handler.Add();
+            model::Employee arg1 = FromJson<model::Employee>(nlohmann::json::parse(request.Body));
+            handler.Add(std::move(arg1));
             return response;
         }
         if (request.Method == "GET" && Impl::PatternMatches("/employee/{id}", request.Path)) {
-            size_t arg1 = {};
-            auto result = handler.FindById();
+            size_t arg1 = Impl::FindPlaceholderValue<size_t>("/employee/{id}", request.Path, "{" "id" "}");
+            auto result = handler.FindById(arg1);
             response.Body = ToJson(result).dump(/*indent=*/4);
             return response;
         }
@@ -68,15 +80,18 @@ HttpResponse ProcessRequest(model::EmployeeController& handler, const HttpReques
             return response;
         }
         if (request.Method == "DELETE" && Impl::PatternMatches("/employee/{id}", request.Path)) {
-            size_t arg1 = {};
-            handler.DeleteById();
+            size_t arg1 = Impl::FindPlaceholderValue<size_t>("/employee/{id}", request.Path, "{" "id" "}");
+            handler.DeleteById(arg1);
             return response;
         }
         throw std::runtime_error("Can't handle " + request.Method + " request with path \"" + request.Path + "\"");
     } catch (const std::exception& ex) {
+        nlohmann::json bodyJson;
+        bodyJson["reason"] = ex.what();
+
         HttpResponse response;
-        response.Code = 500;
-        response.Body = ex.what();
+        response.StatusCode = 500;
+        response.Body = bodyJson.dump(/*indent=*/4);
         return response;
     }
 }

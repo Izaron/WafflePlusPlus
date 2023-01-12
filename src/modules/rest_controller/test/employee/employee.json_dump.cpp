@@ -49,6 +49,7 @@ void ParseNullable(T& t, const nlohmann::json& value) {
 
 template<JsonArray T>
 void DumpArray(nlohmann::json& j, const T& value) {
+    j = nlohmann::json::array();
     for (auto iter = value.begin(); iter != value.end(); ++iter) {
         DumpRoot(j.emplace_back(), *iter);
     }
@@ -79,6 +80,7 @@ void ParsePrimitive(T& t, const nlohmann::json& value) {
 
 template<>
 inline void DumpObject(nlohmann::json& j, const model::Employee& value) {
+    j = nlohmann::json::object();
     DumpPrimitive(j["Id"], value.Id);
     DumpPrimitive(j["Name"], value.Name);
     DumpPrimitive(j["Salary"], value.Salary);
@@ -127,6 +129,8 @@ nlohmann::json ToJson(const T& value) {
 }
 
 template nlohmann::json ToJson<model::Employee>(const model::Employee&);
+template nlohmann::json ToJson<std::vector<model::Employee>>(const std::vector<model::Employee>&);
+template nlohmann::json ToJson<std::optional<model::Employee>>(const std::optional<model::Employee>&);
 
 template<typename T>
 T FromJson(const nlohmann::json& value) {
@@ -136,5 +140,7 @@ T FromJson(const nlohmann::json& value) {
 }
 
 template model::Employee FromJson<model::Employee>(const nlohmann::json&);
+template std::vector<model::Employee> FromJson<std::vector<model::Employee>>(const nlohmann::json&);
+template std::optional<model::Employee> FromJson<std::optional<model::Employee>>(const nlohmann::json&);
 
 } // namespace Waffle

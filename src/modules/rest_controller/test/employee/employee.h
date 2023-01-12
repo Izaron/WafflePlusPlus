@@ -6,9 +6,9 @@ namespace model {
 
 // @jsonable
 struct Employee {
-    size_t Id;
-    std::string Name;
-    double Salary;
+    size_t Id; //< @stringvalue id
+    std::string Name; //< @stringvalue name
+    double Salary; //< @stringvalue salary
 };
 
 class IEmployeeRepository {
@@ -29,16 +29,18 @@ public:
     /*
      * @brief Add a new employee
      * @postmapping /employees
+     * @requestbody employee
      */
-    void Add(/* @requestbody */ Employee employee) {
+    void Add(Employee employee) {
         repository_->Add(std::move(employee));
     }
 
     /*
      * @brief Get the employee with given ID
      * @getmapping /employee/{id}
+     * @pathvariable id
      */
-    std::optional<Employee> FindById(/* @pathvariable */ size_t id) {
+    std::optional<Employee> FindById(size_t id) {
         return repository_->FindById(id);
     }
 
@@ -53,8 +55,9 @@ public:
     /*
      * @brief Delete the employee with given ID
      * @deletemapping /employee/{id}
+     * @pathvariable id
      */
-    void DeleteById(/* @pathvariable */ size_t id) {
+    void DeleteById(size_t id) {
         repository_->DeleteById(id);
     }
 

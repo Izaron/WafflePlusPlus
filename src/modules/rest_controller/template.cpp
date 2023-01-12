@@ -35,13 +35,25 @@ inline bool PatternMatches(std::string_view pattern, std::string_view requestPat
     return true;
 }
 
-inline std::string_view FindPlaceholderValue(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
+template<typename T>
+T FindPlaceholderValue(std::string_view pattern, std::string_view requestPath, std::string_view placeholder);
+
+template<>
+inline std::string_view FindPlaceholderValue<std::string_view>(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
     // assuming that `PatternMatches(pattern, requestPath) == true`
     PathParts patternParts = StringUtil::SplitByDelim(pattern, '/');
     PathParts requestPathParts = StringUtil::SplitByDelim(requestPath, '/');
 
     const auto iter = std::find(patternParts.begin(), patternParts.end(), placeholder);
     return requestPathParts[std::distance(patternParts.begin(), iter)];
+}
+
+template<>
+inline size_t FindPlaceholderValue<size_t>(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
+    std::string_view str = FindPlaceholderValue<std::string_view>(pattern, requestPath, placeholder);
+    size_t result;
+    std::sscanf(str.data(), "%zu", &result);
+    return result;
 }
 
 } // namespace Impl
@@ -51,16 +63,20 @@ template<>
 HttpResponse ProcessRequest({{ struct.name }}& handler, const HttpRequest& request) {
     try {
         HttpResponse response;
-        response.Code = 200;
+        response.StatusCode = 200;
 ## for method in struct.methods
         if (request.Method == "{{ method.http_method }}" && Impl::PatternMatches("{{ method.mapping }}", request.Path)) {
 ## for param in method.params
-            {{ param.type }} arg{{ loop.index1 }} = {};
+{% if param.kind == "requestbody" %}
+            {{ param.type }} arg{{ loop.index1 }} = FromJson<{{ param.type }}>(nlohmann::json::parse(request.Body));
+{% else if param.kind == "pathvariable" %}
+            {{ param.type }} arg{{ loop.index1 }} = Impl::FindPlaceholderValue<{{ param.type }}>("{{ method.mapping }}", request.Path, "{" "{{ param.name }}" "}");
+{% endif %}
 ## endfor
 {% if method.return_type == "void" %}
-            handler.{{ method.name }}();
+            handler.{{ method.name }}({{ list_args(method.params) }});
 {% else %}
-            auto result = handler.{{ method.name }}();
+            auto result = handler.{{ method.name }}({{ list_args(method.params) }});
             response.Body = ToJson(result).dump(/*indent=*/4);
 {% endif %}
             return response;
@@ -68,9 +84,12 @@ HttpResponse ProcessRequest({{ struct.name }}& handler, const HttpRequest& reque
 ## endfor
         throw std::runtime_error("Can't handle " + request.Method + " request with path \"" + request.Path + "\"");
     } catch (const std::exception& ex) {
+        nlohmann::json bodyJson;
+        bodyJson["reason"] = ex.what();
+
         HttpResponse response;
-        response.Code = 500;
-        response.Body = ex.what();
+        response.StatusCode = 500;
+        response.Body = bodyJson.dump(/*indent=*/4);
         return response;
     }
 }

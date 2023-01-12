@@ -6,7 +6,7 @@ namespace Waffle::RestController {
 
 struct ParamData {
     const clang::ParmVarDecl* Decl;
-    std::string Command;
+    std::string Kind;
 };
 
 struct MethodData {

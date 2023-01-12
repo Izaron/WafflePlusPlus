@@ -34,6 +34,22 @@ public:
         llvm::errs() << "GOT DATA " << DataJson_.dump(4) << "\n";
 
         inja::Environment env;
+        env.add_callback("list_args", /*num_args=*/1, [](inja::Arguments& args) {
+            std::stringstream ss;
+            int cnt = 1;
+            for (const auto& param : *args[0]) {
+                if (cnt > 1) { // aka `if (!ss.empty())`
+                    ss << ", ";
+                }
+                if (param["is_light_type"].get<bool>()) {
+                    ss << "arg" << cnt;
+                } else {
+                    ss << "std::move(arg" << cnt << ")";
+                }
+                ++cnt;
+            }
+            return ss.str();
+        });
         env.set_trim_blocks(true);
         printer << env.render(TEMPLATE, DataJson_);
     }
@@ -58,12 +74,12 @@ private:
                 auto& paramJson = paramsJson.emplace_back();
                 paramJson["name"] = decl.getNameAsString();
                 paramJson["type"] = GetNameWithoutTagKeyword(decl);
-                paramJson["command"] = paramData.Command;
+                paramJson["is_light_type"] = IsLightType(*decl.getType().getTypePtr());
+                paramJson["kind"] = paramData.Kind;
             }
         }
     }
 
-private:
     std::string GetNameWithoutTagKeyword(const clang::ValueDecl& decl) {
         static const auto printingPolicy = std::invoke([this]{
             auto p = Ctx_.AstContext.getPrintingPolicy();
@@ -71,6 +87,11 @@ private:
             return p;
         });
         return decl.getType().getAsString(printingPolicy);
+    }
+
+    bool IsLightType(const clang::Type& type) {
+        // is void/nullptr_t/enum/integers/floating
+        return type.isFundamentalType();
     }
 
 private:

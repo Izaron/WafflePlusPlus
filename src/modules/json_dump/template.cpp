@@ -49,6 +49,7 @@ void ParseNullable(T& t, const nlohmann::json& value) {
 
 template<JsonArray T>
 void DumpArray(nlohmann::json& j, const T& value) {
+    j = nlohmann::json::array();
     for (auto iter = value.begin(); iter != value.end(); ++iter) {
         DumpRoot(j.emplace_back(), *iter);
     }
@@ -80,6 +81,7 @@ void ParsePrimitive(T& t, const nlohmann::json& value) {
 ## for struct in structs
 template<>
 inline void DumpObject(nlohmann::json& j, const {{ struct.name }}& value) {
+    j = nlohmann::json::object();
 ## for field in struct.fields
     Dump{{ field.func_suffix }}(j["{{ field.name }}"], value.{{ field.name }});
 ## endfor
@@ -132,8 +134,10 @@ nlohmann::json ToJson(const T& value) {
 
 ## for struct in structs
 template nlohmann::json ToJson<{{ struct.name }}>(const {{ struct.name }}&);
-## endfor
+template nlohmann::json ToJson<std::vector<{{ struct.name }}>>(const std::vector<{{ struct.name }}>&);
+template nlohmann::json ToJson<std::optional<{{ struct.name }}>>(const std::optional<{{ struct.name }}>&);
 
+## endfor
 template<typename T>
 T FromJson(const nlohmann::json& value) {
     T t;
@@ -143,6 +147,8 @@ T FromJson(const nlohmann::json& value) {
 
 ## for struct in structs
 template {{ struct.name }} FromJson<{{ struct.name }}>(const nlohmann::json&);
-## endfor
+template std::vector<{{ struct.name }}> FromJson<std::vector<{{ struct.name }}>>(const nlohmann::json&);
+template std::optional<{{ struct.name }}> FromJson<std::optional<{{ struct.name }}>>(const nlohmann::json&);
 
+## endfor
 } // namespace Waffle
