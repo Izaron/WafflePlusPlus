@@ -47,32 +47,44 @@ private:
         structJson["qualified_name"] = StringUtil::QualifiedName(*decl);
 
         for (const auto methodDecl : decl->methods()) {
-            if (methodDecl->isVirtual() && methodDecl->isPure()) {
-                auto& methodJson = structJson["methods"].emplace_back();
-                methodJson["name"] = methodDecl->getNameAsString();
-                methodJson["return_type"] = methodDecl->getReturnType().getAsString();
-                methodJson["signature"] = GetSignature(*methodDecl);
-                methodJson["qualifiers"] = GetQualifiers(*methodDecl);
-            }
+            auto& methodJson = structJson["methods"].emplace_back();
+            methodJson["name"] = methodDecl->getNameAsString();
+            methodJson["return_type"] = methodDecl->getReturnType().getAsString();
+            methodJson["signature"] = GetSignature(*methodDecl);
+            methodJson["args"] = JoinArgs(*methodDecl);
+            methodJson["qualifiers"] = GetQualifiers(*methodDecl);
         }
     }
 
-    std::string GetSignature(const clang::CXXMethodDecl& methodDecl) {
+    template<typename Func>
+    std::string JoinParams(const clang::CXXMethodDecl& methodDecl, Func func) {
         std::stringstream ss;
         for (const auto param : methodDecl.parameters()) {
             if (ss.rdbuf()->in_avail()) { // aka `if (!ss.str())`
                 ss << ", ";
             }
-            ss << param->getType().getAsString() << " " << param->getNameAsString();
+            ss << func(*param);
         }
         return ss.str();
     }
 
+    std::string GetSignature(const clang::CXXMethodDecl& methodDecl) {
+        return JoinParams(methodDecl, [](const auto& param) {
+            return param.getType().getAsString() + " " + param.getNameAsString();
+        });
+    }
+
+    std::string JoinArgs(const clang::CXXMethodDecl& methodDecl) {
+        return JoinParams(methodDecl, [](const auto& param) {
+            return param.getNameAsString();
+        });
+    }
+
     std::string GetQualifiers(const clang::CXXMethodDecl& methodDecl) {
         if (methodDecl.isConst()) {
-            return "const, override";
+            return " const";
         }
-        return "override";
+        return "";
     }
 
 private:
