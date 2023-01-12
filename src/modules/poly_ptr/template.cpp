@@ -7,6 +7,7 @@
 
 namespace Waffle {
 
+// ------------- declare poly_obj ------------- //
 template<typename T>
 class poly_obj;
 
@@ -36,6 +37,46 @@ private:
     struct object_impl : object_interface {
         object_impl(Object&& object) : object_{std::move(object)} {}
         Object object_;
+
+## for method in struct.methods
+        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); };
+## endfor
+    };
+
+    std::unique_ptr<object_interface> object_ptr_;
+};
+
+## endfor
+// ------------- declare poly_ref ------------- //
+template<typename T>
+class poly_ref;
+
+## for struct in structs
+template<>
+class poly_ref<{{ struct.qualified_name }}> {
+public:
+    template<typename Object>
+    poly_ref(Object& object)
+        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
+    {}
+
+## for method in struct.methods
+    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); };
+## endfor
+
+private:
+    struct object_interface {
+        virtual ~object_interface() = default;
+
+## for method in struct.methods
+        virtual {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} = 0;
+## endfor
+    };
+
+    template<typename Object>
+    struct object_impl : object_interface {
+        object_impl(Object& object) : object_{object} {}
+        Object& object_;
 
 ## for method in struct.methods
         {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); };

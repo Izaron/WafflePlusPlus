@@ -7,6 +7,7 @@
 
 namespace Waffle {
 
+// ------------- declare poly_obj ------------- //
 template<typename T>
 class poly_obj;
 
@@ -71,6 +72,78 @@ private:
     struct object_impl : object_interface {
         object_impl(Object&& object) : object_{std::move(object)} {}
         Object object_;
+
+        std::string String() const override { return object_.String(); };
+    };
+
+    std::unique_ptr<object_interface> object_ptr_;
+};
+
+// ------------- declare poly_ref ------------- //
+template<typename T>
+class poly_ref;
+
+template<>
+class poly_ref<model::Robot> {
+public:
+    template<typename Object>
+    poly_ref(Object& object)
+        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
+    {}
+
+    void Forward(double distance) { return object_ptr_->Forward(distance); };
+    void Turn(double degrees) { return object_ptr_->Turn(degrees); };
+    void GoTo(double x, double y) { return object_ptr_->GoTo(x, y); };
+    double GetX() const { return object_ptr_->GetX(); };
+    double GetY() const { return object_ptr_->GetY(); };
+
+private:
+    struct object_interface {
+        virtual ~object_interface() = default;
+
+        virtual void Forward(double distance) = 0;
+        virtual void Turn(double degrees) = 0;
+        virtual void GoTo(double x, double y) = 0;
+        virtual double GetX() const = 0;
+        virtual double GetY() const = 0;
+    };
+
+    template<typename Object>
+    struct object_impl : object_interface {
+        object_impl(Object& object) : object_{object} {}
+        Object& object_;
+
+        void Forward(double distance) override { return object_.Forward(distance); };
+        void Turn(double degrees) override { return object_.Turn(degrees); };
+        void GoTo(double x, double y) override { return object_.GoTo(x, y); };
+        double GetX() const override { return object_.GetX(); };
+        double GetY() const override { return object_.GetY(); };
+    };
+
+    std::unique_ptr<object_interface> object_ptr_;
+};
+
+template<>
+class poly_ref<model::Stringer> {
+public:
+    template<typename Object>
+    poly_ref(Object& object)
+        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
+    {}
+
+    std::string String() const { return object_ptr_->String(); };
+
+private:
+    struct object_interface {
+        virtual ~object_interface() = default;
+
+        virtual std::string String() const = 0;
+    };
+
+    template<typename Object>
+    struct object_impl : object_interface {
+        object_impl(Object& object) : object_{object} {}
+        Object& object_;
 
         std::string String() const override { return object_.String(); };
     };
