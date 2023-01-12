@@ -6,9 +6,9 @@ namespace model {
 
 // @jsonable
 struct Employee {
-    size_t Id; //< @stringvalue id
-    std::string Name; //< @stringvalue name
-    double Salary; //< @stringvalue salary
+    size_t Id; // @stringvalue id
+    std::string Name; // @stringvalue name
+    double Salary; // @stringvalue salary
 };
 
 class IEmployeeRepository {

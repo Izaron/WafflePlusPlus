@@ -81,16 +81,16 @@ void ParsePrimitive(T& t, const nlohmann::json& value) {
 template<>
 inline void DumpObject(nlohmann::json& j, const model::Employee& value) {
     j = nlohmann::json::object();
-    DumpPrimitive(j["Id"], value.Id);
-    DumpPrimitive(j["Name"], value.Name);
-    DumpPrimitive(j["Salary"], value.Salary);
+    DumpPrimitive(j["id"], value.Id);
+    DumpPrimitive(j["name"], value.Name);
+    DumpPrimitive(j["salary"], value.Salary);
 }
 
 template<>
 inline void ParseObject(model::Employee& t, const nlohmann::json& value) {
-    ParsePrimitive(t.Id, value["Id"]);
-    ParsePrimitive(t.Name, value["Name"]);
-    ParsePrimitive(t.Salary, value["Salary"]);
+    ParsePrimitive(t.Id, value["id"]);
+    ParsePrimitive(t.Name, value["name"]);
+    ParsePrimitive(t.Salary, value["salary"]);
 }
 
 template<typename T>

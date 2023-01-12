@@ -96,7 +96,7 @@ TEST_F(RestControllerEmployee, Add) {
     auto req = Waffle::HttpRequest{
         .Method = "POST",
         .Path = "/employees",
-        .Body = R"({"Id": 13, "Name": "John", "Salary": 6000})",
+        .Body = R"({"id": 13, "name": "John", "salary": 6000})",
     };
 
     const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
