@@ -8,14 +8,14 @@
 namespace Waffle {
 
 template<typename T>
-class poly_ptr;
+class poly_obj;
 
 ## for struct in structs
 template<>
-class poly_ptr<{{ struct.qualified_name }}> {
+class poly_obj<{{ struct.qualified_name }}> {
 public:
     template<typename Object>
-    poly_ptr(Object&& object)
+    poly_obj(Object&& object)
         : object_ptr_{std::make_unique<object_impl<Object>>(std::move(object))}
     {}
 

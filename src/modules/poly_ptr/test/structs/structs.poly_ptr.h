@@ -8,13 +8,13 @@
 namespace Waffle {
 
 template<typename T>
-class poly_ptr;
+class poly_obj;
 
 template<>
-class poly_ptr<model::Robot> {
+class poly_obj<model::Robot> {
 public:
     template<typename Object>
-    poly_ptr(Object&& object)
+    poly_obj(Object&& object)
         : object_ptr_{std::make_unique<object_impl<Object>>(std::move(object))}
     {}
 
@@ -51,10 +51,10 @@ private:
 };
 
 template<>
-class poly_ptr<model::Stringer> {
+class poly_obj<model::Stringer> {
 public:
     template<typename Object>
-    poly_ptr(Object&& object)
+    poly_obj(Object&& object)
         : object_ptr_{std::make_unique<object_impl<Object>>(std::move(object))}
     {}
 
