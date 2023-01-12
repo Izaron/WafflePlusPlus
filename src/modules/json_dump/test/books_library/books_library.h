@@ -4,22 +4,22 @@
 
 namespace model {
 
-struct book {
-    std::string name;
-    std::string author;
-    int year;
+struct Book {
+    std::string Name; // @stringvalue name
+    std::string Author; // @stringvalue author
+    int Year; // @stringvalue year
 };
 
-struct latlon {
-    double lat;
-    double lon;
+struct LatLon {
+    double Lat; // @stringvalue lat
+    double Lon; // @stringvalue lon
 };
 
 // @jsonable
-struct library {
-    std::vector<book> books;
-    std::optional<std::string> description;
-    latlon address;
+struct Library {
+    std::vector<Book> Books; // @stringvalue books
+    std::optional<std::string> Description; // @stringvalue description
+    LatLon Address; // @stringvalue address
 };
 
 } // namespace model

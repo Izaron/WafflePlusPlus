@@ -32,23 +32,23 @@ constexpr std::string_view JSON_DUMP = R"(
     "description": null
 })";
 
-model::library BuildBooksLibraryObject() {
-    model::library l;
-    l.address = model::latlon{.lat = 51.507351, .lon = -0.127696};
-    l.books.push_back(model::book{
-        .name = "The Picture of Dorian Gray",
-        .author = "Oscar Wilde",
-        .year = 1890,
+model::Library BuildBooksLibraryObject() {
+    model::Library l;
+    l.Address = model::LatLon{.Lat = 51.507351, .Lon = -0.127696};
+    l.Books.push_back(model::Book{
+        .Name = "The Picture of Dorian Gray",
+        .Author = "Oscar Wilde",
+        .Year = 1890,
     });
-    l.books.push_back(model::book{
-        .name = "Fahrenheit 451",
-        .author = "Ray Bradbury",
-        .year = 1953,
+    l.Books.push_back(model::Book{
+        .Name = "Fahrenheit 451",
+        .Author = "Ray Bradbury",
+        .Year = 1953,
     });
-    l.books.push_back(model::book{
-        .name = "Roadside Picnic",
-        .author = "Arkady and Boris Strugatsky",
-        .year = 1972,
+    l.Books.push_back(model::Book{
+        .Name = "Roadside Picnic",
+        .Author = "Arkady and Boris Strugatsky",
+        .Year = 1972,
     });
     return l;
 }
@@ -62,6 +62,6 @@ TEST(JsonDump, BooksLibraryToJson) {
 
 TEST(JsonDump, BooksLibraryFromJson) {
     auto json = nlohmann::json::parse(JSON_DUMP);
-    auto obj = FromJson<model::library>(json);
+    auto obj = FromJson<model::Library>(json);
     ASSERT_STREQ(("\n" + ToJson(obj).dump(/*indent=*/4)).data(), JSON_DUMP.data());
 }

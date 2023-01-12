@@ -79,46 +79,46 @@ void ParsePrimitive(T& t, const nlohmann::json& value) {
 }
 
 template<>
-inline void DumpObject(nlohmann::json& j, const model::latlon& value) {
+inline void DumpObject(nlohmann::json& j, const model::LatLon& value) {
     j = nlohmann::json::object();
-    DumpPrimitive(j["lat"], value.lat);
-    DumpPrimitive(j["lon"], value.lon);
+    DumpPrimitive(j["lat"], value.Lat);
+    DumpPrimitive(j["lon"], value.Lon);
 }
 
 template<>
-inline void DumpObject(nlohmann::json& j, const model::book& value) {
+inline void DumpObject(nlohmann::json& j, const model::Book& value) {
     j = nlohmann::json::object();
-    DumpPrimitive(j["name"], value.name);
-    DumpPrimitive(j["author"], value.author);
-    DumpPrimitive(j["year"], value.year);
+    DumpPrimitive(j["name"], value.Name);
+    DumpPrimitive(j["author"], value.Author);
+    DumpPrimitive(j["year"], value.Year);
 }
 
 template<>
-inline void DumpObject(nlohmann::json& j, const model::library& value) {
+inline void DumpObject(nlohmann::json& j, const model::Library& value) {
     j = nlohmann::json::object();
-    DumpArray(j["books"], value.books);
-    DumpNullable(j["description"], value.description);
-    DumpObject(j["address"], value.address);
+    DumpArray(j["books"], value.Books);
+    DumpNullable(j["description"], value.Description);
+    DumpObject(j["address"], value.Address);
 }
 
 template<>
-inline void ParseObject(model::latlon& t, const nlohmann::json& value) {
-    ParsePrimitive(t.lat, value["lat"]);
-    ParsePrimitive(t.lon, value["lon"]);
+inline void ParseObject(model::LatLon& t, const nlohmann::json& value) {
+    ParsePrimitive(t.Lat, value["lat"]);
+    ParsePrimitive(t.Lon, value["lon"]);
 }
 
 template<>
-inline void ParseObject(model::book& t, const nlohmann::json& value) {
-    ParsePrimitive(t.name, value["name"]);
-    ParsePrimitive(t.author, value["author"]);
-    ParsePrimitive(t.year, value["year"]);
+inline void ParseObject(model::Book& t, const nlohmann::json& value) {
+    ParsePrimitive(t.Name, value["name"]);
+    ParsePrimitive(t.Author, value["author"]);
+    ParsePrimitive(t.Year, value["year"]);
 }
 
 template<>
-inline void ParseObject(model::library& t, const nlohmann::json& value) {
-    ParseArray(t.books, value["books"]);
-    ParseNullable(t.description, value["description"]);
-    ParseObject(t.address, value["address"]);
+inline void ParseObject(model::Library& t, const nlohmann::json& value) {
+    ParseArray(t.Books, value["books"]);
+    ParseNullable(t.Description, value["description"]);
+    ParseObject(t.Address, value["address"]);
 }
 
 template<typename T>
@@ -156,17 +156,17 @@ nlohmann::json ToJson(const T& value) {
     return j;
 }
 
-template nlohmann::json ToJson<model::latlon>(const model::latlon&);
-template nlohmann::json ToJson<std::vector<model::latlon>>(const std::vector<model::latlon>&);
-template nlohmann::json ToJson<std::optional<model::latlon>>(const std::optional<model::latlon>&);
+template nlohmann::json ToJson<model::LatLon>(const model::LatLon&);
+template nlohmann::json ToJson<std::vector<model::LatLon>>(const std::vector<model::LatLon>&);
+template nlohmann::json ToJson<std::optional<model::LatLon>>(const std::optional<model::LatLon>&);
 
-template nlohmann::json ToJson<model::book>(const model::book&);
-template nlohmann::json ToJson<std::vector<model::book>>(const std::vector<model::book>&);
-template nlohmann::json ToJson<std::optional<model::book>>(const std::optional<model::book>&);
+template nlohmann::json ToJson<model::Book>(const model::Book&);
+template nlohmann::json ToJson<std::vector<model::Book>>(const std::vector<model::Book>&);
+template nlohmann::json ToJson<std::optional<model::Book>>(const std::optional<model::Book>&);
 
-template nlohmann::json ToJson<model::library>(const model::library&);
-template nlohmann::json ToJson<std::vector<model::library>>(const std::vector<model::library>&);
-template nlohmann::json ToJson<std::optional<model::library>>(const std::optional<model::library>&);
+template nlohmann::json ToJson<model::Library>(const model::Library&);
+template nlohmann::json ToJson<std::vector<model::Library>>(const std::vector<model::Library>&);
+template nlohmann::json ToJson<std::optional<model::Library>>(const std::optional<model::Library>&);
 
 template<typename T>
 T FromJson(const nlohmann::json& value) {
@@ -175,16 +175,16 @@ T FromJson(const nlohmann::json& value) {
     return t;
 }
 
-template model::latlon FromJson<model::latlon>(const nlohmann::json&);
-template std::vector<model::latlon> FromJson<std::vector<model::latlon>>(const nlohmann::json&);
-template std::optional<model::latlon> FromJson<std::optional<model::latlon>>(const nlohmann::json&);
+template model::LatLon FromJson<model::LatLon>(const nlohmann::json&);
+template std::vector<model::LatLon> FromJson<std::vector<model::LatLon>>(const nlohmann::json&);
+template std::optional<model::LatLon> FromJson<std::optional<model::LatLon>>(const nlohmann::json&);
 
-template model::book FromJson<model::book>(const nlohmann::json&);
-template std::vector<model::book> FromJson<std::vector<model::book>>(const nlohmann::json&);
-template std::optional<model::book> FromJson<std::optional<model::book>>(const nlohmann::json&);
+template model::Book FromJson<model::Book>(const nlohmann::json&);
+template std::vector<model::Book> FromJson<std::vector<model::Book>>(const nlohmann::json&);
+template std::optional<model::Book> FromJson<std::optional<model::Book>>(const nlohmann::json&);
 
-template model::library FromJson<model::library>(const nlohmann::json&);
-template std::vector<model::library> FromJson<std::vector<model::library>>(const nlohmann::json&);
-template std::optional<model::library> FromJson<std::optional<model::library>>(const nlohmann::json&);
+template model::Library FromJson<model::Library>(const nlohmann::json&);
+template std::vector<model::Library> FromJson<std::vector<model::Library>>(const nlohmann::json&);
+template std::optional<model::Library> FromJson<std::optional<model::Library>>(const nlohmann::json&);
 
 } // namespace Waffle

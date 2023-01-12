@@ -15,24 +15,12 @@ namespace {
 #include "template.cpp.data"
 const std::string TEMPLATE{(char*)template_cpp, template_cpp_len};
 
-const std::unordered_set<std::string> JSON_STRING_TYPES = {
-    "std::basic_string", "std::basic_string_view",
-};
-const std::unordered_set<std::string> JSON_ARRAY_TYPES = {
-    "std::vector", "std::deque", "std::list", "std::forward_list", "std::array",
-};
-const std::unordered_set<std::string> JSON_NULLABLE_TYPES = {
-    "std::optional",
-};
-
 class Printer {
 public:
     explicit Printer(Context& ctx, const StructDecls& decls)
         : Ctx_{ctx}
+        , Decls_{decls}
     {
-        for (const auto decl : decls) {
-            DeclsQueue_.emplace(decl);
-        }
     }
 
     void Print() {
@@ -42,12 +30,7 @@ public:
 
         DataJson_["source_file"] = StringUtil::RemoveLastExt(inFile);
 
-        while (!DeclsQueue_.empty()) {
-            const auto decl = DeclsQueue_.front();
-            DeclsQueue_.pop();
-            if (!PrintedDecls_.insert(decl).second) {
-                continue;
-            }
+        for (const auto& decl : Decls_) {
             AddStructJson(decl);
         }
         std::reverse(DataJson_["structs"].begin(), DataJson_["structs"].end());
@@ -58,77 +41,32 @@ public:
     }
 
 private:
-    void AddStructJson(const StructDecl decl) {
+    void AddStructJson(const StructDecl& decl) {
         auto& structJson = DataJson_["structs"].emplace_back();
-        structJson["name"] = StringUtil::QualifiedName(*decl);
+        structJson["name"] = StringUtil::QualifiedName(*decl.Decl);
 
         auto& fieldsJson = structJson["fields"];
-        for (const auto field : decl->fields()) {
+        for (const auto& field : decl.Fields) {
             auto& fieldJson = fieldsJson.emplace_back();
             auto& funcSuffixJson = fieldJson["func_suffix"];
-            fieldJson["name"] = field->getNameAsString();
+            fieldJson["variable_name"] = field.VariableName;
+            fieldJson["json_name"] = field.JsonName;
 
-            const auto* type = field->getType().getTypePtr()->getUnqualifiedDesugaredType();
-            const std::string typeName = GetTypeName(*type);
-
-            if (JSON_ARRAY_TYPES.contains(typeName)) {
+            if (JSON_ARRAY_TYPES.contains(field.TypeName)) {
                 funcSuffixJson = "Array";
-                if (const auto structDecl = TryGetTemplateArgStructDecl(*type)) {
-                    DeclsQueue_.push(structDecl);
-                }
-            }
-            else if (JSON_NULLABLE_TYPES.contains(typeName)) {
+            } else if (JSON_NULLABLE_TYPES.contains(field.TypeName)) {
                 funcSuffixJson = "Nullable";
-                if (const auto structDecl = TryGetTemplateArgStructDecl(*type)) {
-                    DeclsQueue_.push(structDecl);
-                }
-            }
-            else if (const auto* recordDecl = type->getAsRecordDecl(); recordDecl && !JSON_STRING_TYPES.contains(typeName)) {
+            } else if (field.IsRecordType) {
                 funcSuffixJson = "Object";
-                DeclsQueue_.push(recordDecl);
-            }
-            else {
+            } else {
                 funcSuffixJson = "Primitive";
             }
         }
     }
 
-    std::string GetTypeName(const clang::Type& type) {
-        if (const auto* typeDecl = type.getAsTagDecl()) {
-            return StringUtil::QualifiedName(*typeDecl);
-        }
-        return "";
-    }
-
-    StructDecl TryGetTemplateArgStructDecl(const clang::Type& type) {
-        const auto* recordDecl = type.getAsRecordDecl();
-        if (!recordDecl) {
-            return nullptr;
-        }
-        if (const auto* specDecl = llvm::dyn_cast_or_null<clang::ClassTemplateSpecializationDecl>(recordDecl)) {
-            const auto& args = specDecl->getTemplateArgs();
-            const auto& arg = args.get(0);
-            if (arg.getKind() != clang::TemplateArgument::Type) {
-                return nullptr;
-            }
-            if (const auto* type = arg.getAsType().getTypePtr(); type->isRecordType()) {
-                const std::string typeName = GetTypeName(*type);
-                if (JSON_STRING_TYPES.contains(typeName)) {
-                    return nullptr;
-                }
-                if (JSON_ARRAY_TYPES.contains(typeName)) {
-                    return TryGetTemplateArgStructDecl(*type);
-                }
-                return type->getAsRecordDecl();
-            }
-        }
-        return nullptr;
-    }
-
 private:
     Context& Ctx_;
-    std::queue<StructDecl> DeclsQueue_;
-    std::unordered_set<StructDecl> PrintedDecls_;
+    const StructDecls& Decls_;
     inja::json DataJson_;
 };
 

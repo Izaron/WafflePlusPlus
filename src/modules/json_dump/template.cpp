@@ -83,7 +83,7 @@ template<>
 inline void DumpObject(nlohmann::json& j, const {{ struct.name }}& value) {
     j = nlohmann::json::object();
 ## for field in struct.fields
-    Dump{{ field.func_suffix }}(j["{{ field.name }}"], value.{{ field.name }});
+    Dump{{ field.func_suffix }}(j["{{ field.json_name }}"], value.{{ field.variable_name }});
 ## endfor
 }
 
@@ -92,7 +92,7 @@ inline void DumpObject(nlohmann::json& j, const {{ struct.name }}& value) {
 template<>
 inline void ParseObject({{ struct.name }}& t, const nlohmann::json& value) {
 ## for field in struct.fields
-    Parse{{ field.func_suffix }}(t.{{ field.name }}, value["{{ field.name }}"]);
+    Parse{{ field.func_suffix }}(t.{{ field.variable_name }}, value["{{ field.json_name }}"]);
 ## endfor
 }
 
