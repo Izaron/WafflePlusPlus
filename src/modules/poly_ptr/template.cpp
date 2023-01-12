@@ -87,4 +87,50 @@ private:
 };
 
 ## endfor
+// ------------- declare const_poly_ref ------------- //
+template<typename T>
+class const_poly_ref;
+
+## for struct in structs
+template<>
+class const_poly_ref<{{ struct.qualified_name }}> {
+public:
+    template<typename Object>
+    const_poly_ref(const Object& object)
+        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
+    {}
+
+## for method in struct.methods
+{% if method.qualifiers == " const" %}
+    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); };
+{% endif %}
+## endfor
+
+private:
+    struct object_interface {
+        virtual ~object_interface() = default;
+
+## for method in struct.methods
+{% if method.qualifiers == " const" %}
+        virtual {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} = 0;
+{% endif %}
+## endfor
+    };
+
+    template<typename Object>
+    struct object_impl : object_interface {
+        object_impl(const Object& object) : object_{object} {}
+        const Object& object_;
+
+## for method in struct.methods
+{% if method.qualifiers == " const" %}
+        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); };
+{% endif %}
+## endfor
+    };
+
+    const std::unique_ptr<const object_interface> object_ptr_;
+};
+
+## endfor
 } // namespace Waffle

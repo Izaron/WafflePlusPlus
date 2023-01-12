@@ -151,4 +151,67 @@ private:
     std::unique_ptr<object_interface> object_ptr_;
 };
 
+// ------------- declare const_poly_ref ------------- //
+template<typename T>
+class const_poly_ref;
+
+template<>
+class const_poly_ref<model::Robot> {
+public:
+    template<typename Object>
+    const_poly_ref(const Object& object)
+        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
+    {}
+
+    double GetX() const { return object_ptr_->GetX(); };
+    double GetY() const { return object_ptr_->GetY(); };
+
+private:
+    struct object_interface {
+        virtual ~object_interface() = default;
+
+        virtual double GetX() const = 0;
+        virtual double GetY() const = 0;
+    };
+
+    template<typename Object>
+    struct object_impl : object_interface {
+        object_impl(const Object& object) : object_{object} {}
+        const Object& object_;
+
+        double GetX() const override { return object_.GetX(); };
+        double GetY() const override { return object_.GetY(); };
+    };
+
+    const std::unique_ptr<const object_interface> object_ptr_;
+};
+
+template<>
+class const_poly_ref<model::Stringer> {
+public:
+    template<typename Object>
+    const_poly_ref(const Object& object)
+        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
+    {}
+
+    std::string String() const { return object_ptr_->String(); };
+
+private:
+    struct object_interface {
+        virtual ~object_interface() = default;
+
+        virtual std::string String() const = 0;
+    };
+
+    template<typename Object>
+    struct object_impl : object_interface {
+        object_impl(const Object& object) : object_{object} {}
+        const Object& object_;
+
+        std::string String() const override { return object_.String(); };
+    };
+
+    const std::unique_ptr<const object_interface> object_ptr_;
+};
+
 } // namespace Waffle
