@@ -8,7 +8,7 @@ waffle_generate(
 
 # link new files with test
 add_executable(poly_ptr_test
-    test.cpp
+    poly_ptr_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/structs/structs.poly_ptr.h)
 target_link_libraries(poly_ptr_test gtest_main)
 
