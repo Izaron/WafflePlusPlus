@@ -1,0 +1,6 @@
+include_directories(${LLVM_INCLUDE_DIRS})
+waffle_generate_template_data()
+add_library(poly_ptr OBJECT register.cpp collector.cpp printer.cpp template.cpp.data)
+target_include_directories(poly_ptr PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+add_subdirectory(test)
+enable_testing()
