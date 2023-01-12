@@ -15,6 +15,7 @@ class IEmployeeRepository {
 public:
     virtual void Add(Employee employee) = 0;
     virtual std::optional<Employee> FindById(size_t id) = 0;
+    virtual std::vector<Employee> FindBySalaryRange(double lowerBound, double upperBound) = 0;
     virtual std::vector<Employee> FindAll() = 0;
     virtual void DeleteById(size_t id) = 0;
 };
@@ -37,11 +38,21 @@ public:
 
     /*
      * @brief Get the employee with given ID
-     * @getmapping /employee/{id}
+     * @getmapping /employees/{id}
      * @pathvariable id
      */
     std::optional<Employee> FindById(size_t id) {
         return repository_->FindById(id);
+    }
+
+    /*
+     * @brief Get all employers with salary in given range
+     * @getmapping /employees/find?lowerBound={lowerBound}&upperBound={upperBound}
+     * @pathvariable lowerBound
+     * @pathvariable upperBound
+     */
+    std::vector<Employee> FindBySalaryRange(double lowerBound, double upperBound) {
+        return repository_->FindBySalaryRange(lowerBound, upperBound);
     }
 
     /*
@@ -54,7 +65,7 @@ public:
 
     /*
      * @brief Delete the employee with given ID
-     * @deletemapping /employee/{id}
+     * @deletemapping /employees/{id}
      * @pathvariable id
      */
     void DeleteById(size_t id) {

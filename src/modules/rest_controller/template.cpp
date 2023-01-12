@@ -14,9 +14,11 @@ namespace Impl {
 
 using PathParts = std::vector<std::string_view>;
 
+inline constexpr std::string_view DELIMS = "/?=&";
+
 inline bool PatternMatches(std::string_view pattern, std::string_view requestPath) {
-    PathParts patternParts = StringUtil::SplitByDelim(pattern, '/');
-    PathParts requestPathParts = StringUtil::SplitByDelim(requestPath, '/');
+    PathParts patternParts = StringUtil::SplitByDelims(pattern, DELIMS);
+    PathParts requestPathParts = StringUtil::SplitByDelims(requestPath, DELIMS);
 
     if (patternParts.size() != requestPathParts.size()) {
         return false;
@@ -41,8 +43,8 @@ T FindPlaceholderValue(std::string_view pattern, std::string_view requestPath, s
 template<>
 inline std::string_view FindPlaceholderValue<std::string_view>(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
     // assuming that `PatternMatches(pattern, requestPath) == true`
-    PathParts patternParts = StringUtil::SplitByDelim(pattern, '/');
-    PathParts requestPathParts = StringUtil::SplitByDelim(requestPath, '/');
+    PathParts patternParts = StringUtil::SplitByDelims(pattern, DELIMS);
+    PathParts requestPathParts = StringUtil::SplitByDelims(requestPath, DELIMS);
 
     const auto iter = std::find(patternParts.begin(), patternParts.end(), placeholder);
     return requestPathParts[std::distance(patternParts.begin(), iter)];
@@ -53,6 +55,14 @@ inline size_t FindPlaceholderValue<size_t>(std::string_view pattern, std::string
     std::string_view str = FindPlaceholderValue<std::string_view>(pattern, requestPath, placeholder);
     size_t result;
     std::sscanf(str.data(), "%zu", &result);
+    return result;
+}
+
+template<>
+inline double FindPlaceholderValue<double>(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
+    std::string_view str = FindPlaceholderValue<std::string_view>(pattern, requestPath, placeholder);
+    double result;
+    std::sscanf(str.data(), "%lf", &result);
     return result;
 }
 

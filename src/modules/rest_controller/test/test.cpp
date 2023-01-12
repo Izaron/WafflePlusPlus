@@ -17,6 +17,7 @@ class MockEmployeeRepository : public model::IEmployeeRepository {
 public:
     MOCK_METHOD(void, Add, (model::Employee), (override));
     MOCK_METHOD(std::optional<model::Employee>, FindById, (size_t), (override));
+    MOCK_METHOD(std::vector<model::Employee>, FindBySalaryRange, (double, double), (override));
     MOCK_METHOD(std::vector<model::Employee>, FindAll, (), (override));
     MOCK_METHOD(void, DeleteById, (size_t), (override));
 };
@@ -86,6 +87,36 @@ TEST_F(RestControllerEmployee, SuccessFindAll) {
 ])");
 }
 
+TEST_F(RestControllerEmployee, SuccessFindBySalaryRange) {
+    std::vector<model::Employee> manyEmployees;
+    manyEmployees.emplace_back(model::Employee{.Id = 13, .Name = "Mary", .Salary = 1234.56});
+    manyEmployees.emplace_back(model::Employee{.Id = 26, .Name = "Ann", .Salary = 6543.21});
+    EXPECT_CALL(*Repository, FindBySalaryRange(1045.5, 7100.9))
+        .Times(1)
+        .WillOnce(Return(manyEmployees));
+
+    auto req = Waffle::HttpRequest{
+        .Method = "GET",
+        .Path = "/employees/find?lowerBound=1045.5&upperBound=7100.9",
+    };
+
+    const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
+    ASSERT_EQ(response.StatusCode, 200);
+    ASSERT_EQ("\n" + response.Body, R"(
+[
+    {
+        "id": 13,
+        "name": "Mary",
+        "salary": 1234.56
+    },
+    {
+        "id": 26,
+        "name": "Ann",
+        "salary": 6543.21
+    }
+])");
+}
+
 TEST_F(RestControllerEmployee, EmptyFindById) {
     EXPECT_CALL(*Repository, FindById(13071999))
         .Times(1)
@@ -93,7 +124,7 @@ TEST_F(RestControllerEmployee, EmptyFindById) {
 
     auto req = Waffle::HttpRequest{
         .Method = "GET",
-        .Path = "/employee/13071999",
+        .Path = "/employees/13071999",
     };
 
     const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
@@ -109,7 +140,7 @@ TEST_F(RestControllerEmployee, SuccessFindById) {
 
     auto req = Waffle::HttpRequest{
         .Method = "GET",
-        .Path = "/employee/13071999",
+        .Path = "/employees/13071999",
     };
 
     const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
@@ -129,7 +160,7 @@ TEST_F(RestControllerEmployee, FailureDeleteById) {
 
     auto req = Waffle::HttpRequest{
         .Method = "DELETE",
-        .Path = "/employee/13071999",
+        .Path = "/employees/13071999",
     };
 
     const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);

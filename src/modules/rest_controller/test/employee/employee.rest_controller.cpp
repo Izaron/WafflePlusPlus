@@ -14,9 +14,11 @@ namespace Impl {
 
 using PathParts = std::vector<std::string_view>;
 
+inline constexpr std::string_view DELIMS = "/?=&";
+
 inline bool PatternMatches(std::string_view pattern, std::string_view requestPath) {
-    PathParts patternParts = StringUtil::SplitByDelim(pattern, '/');
-    PathParts requestPathParts = StringUtil::SplitByDelim(requestPath, '/');
+    PathParts patternParts = StringUtil::SplitByDelims(pattern, DELIMS);
+    PathParts requestPathParts = StringUtil::SplitByDelims(requestPath, DELIMS);
 
     if (patternParts.size() != requestPathParts.size()) {
         return false;
@@ -41,8 +43,8 @@ T FindPlaceholderValue(std::string_view pattern, std::string_view requestPath, s
 template<>
 inline std::string_view FindPlaceholderValue<std::string_view>(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
     // assuming that `PatternMatches(pattern, requestPath) == true`
-    PathParts patternParts = StringUtil::SplitByDelim(pattern, '/');
-    PathParts requestPathParts = StringUtil::SplitByDelim(requestPath, '/');
+    PathParts patternParts = StringUtil::SplitByDelims(pattern, DELIMS);
+    PathParts requestPathParts = StringUtil::SplitByDelims(requestPath, DELIMS);
 
     const auto iter = std::find(patternParts.begin(), patternParts.end(), placeholder);
     return requestPathParts[std::distance(patternParts.begin(), iter)];
@@ -53,6 +55,14 @@ inline size_t FindPlaceholderValue<size_t>(std::string_view pattern, std::string
     std::string_view str = FindPlaceholderValue<std::string_view>(pattern, requestPath, placeholder);
     size_t result;
     std::sscanf(str.data(), "%zu", &result);
+    return result;
+}
+
+template<>
+inline double FindPlaceholderValue<double>(std::string_view pattern, std::string_view requestPath, std::string_view placeholder) {
+    std::string_view str = FindPlaceholderValue<std::string_view>(pattern, requestPath, placeholder);
+    double result;
+    std::sscanf(str.data(), "%lf", &result);
     return result;
 }
 
@@ -68,9 +78,16 @@ HttpResponse ProcessRequest(model::EmployeeController& handler, const HttpReques
             handler.Add(std::move(arg1));
             return response;
         }
-        if (request.Method == "GET" && Impl::PatternMatches("/employee/{id}", request.Path)) {
-            size_t arg1 = Impl::FindPlaceholderValue<size_t>("/employee/{id}", request.Path, "{" "id" "}");
+        if (request.Method == "GET" && Impl::PatternMatches("/employees/{id}", request.Path)) {
+            size_t arg1 = Impl::FindPlaceholderValue<size_t>("/employees/{id}", request.Path, "{" "id" "}");
             auto result = handler.FindById(arg1);
+            response.Body = ToJson(result).dump(/*indent=*/4);
+            return response;
+        }
+        if (request.Method == "GET" && Impl::PatternMatches("/employees/find?lowerBound={lowerBound}&upperBound={upperBound}", request.Path)) {
+            double arg1 = Impl::FindPlaceholderValue<double>("/employees/find?lowerBound={lowerBound}&upperBound={upperBound}", request.Path, "{" "lowerBound" "}");
+            double arg2 = Impl::FindPlaceholderValue<double>("/employees/find?lowerBound={lowerBound}&upperBound={upperBound}", request.Path, "{" "upperBound" "}");
+            auto result = handler.FindBySalaryRange(arg1, arg2);
             response.Body = ToJson(result).dump(/*indent=*/4);
             return response;
         }
@@ -79,8 +96,8 @@ HttpResponse ProcessRequest(model::EmployeeController& handler, const HttpReques
             response.Body = ToJson(result).dump(/*indent=*/4);
             return response;
         }
-        if (request.Method == "DELETE" && Impl::PatternMatches("/employee/{id}", request.Path)) {
-            size_t arg1 = Impl::FindPlaceholderValue<size_t>("/employee/{id}", request.Path, "{" "id" "}");
+        if (request.Method == "DELETE" && Impl::PatternMatches("/employees/{id}", request.Path)) {
+            size_t arg1 = Impl::FindPlaceholderValue<size_t>("/employees/{id}", request.Path, "{" "id" "}");
             handler.DeleteById(arg1);
             return response;
         }
