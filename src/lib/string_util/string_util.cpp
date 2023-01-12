@@ -69,4 +69,8 @@ std::vector<std::string_view> SplitByDelim(std::string_view s, char delim) {
     return Split(s, [delim](char c) { return c == delim; });
 }
 
+std::vector<std::string_view> SplitByDelims(std::string_view s, std::string_view delims) {
+    return Split(s, [&delims](char c) { return delims.find(c) != std::string_view::npos; });
+}
+
 } // namespace Waffle::StringUtil

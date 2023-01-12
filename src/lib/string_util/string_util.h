@@ -26,4 +26,7 @@ std::vector<std::string_view> SplitBySpace(std::string_view s);
 // " a/b/c" -> ["a", "b", "c"]
 std::vector<std::string_view> SplitByDelim(std::string_view s, char delim);
 
+// " a/b=c?d" -> ["a", "b", "c", "d"]
+std::vector<std::string_view> SplitByDelims(std::string_view s, std::string_view delims);
+
 } // namespace Waffle::StringUtil

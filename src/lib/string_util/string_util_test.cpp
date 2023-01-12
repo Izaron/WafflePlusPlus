@@ -60,3 +60,15 @@ TEST(StringUtilTest, SplitByDelim) {
     ASSERT_STREQ(std::string{split[2]}.c_str(), "info");
     ASSERT_STREQ(std::string{split[3]}.c_str(), "{type}");
 }
+
+TEST(StringUtilTest, SplitByDelims) {
+    constexpr std::string_view s = "/employees/find?lowerBound={lowerBound}&upperBound={upperBound}";
+    const auto split = SplitByDelims(s, "/?=&");
+    ASSERT_EQ(split.size(), 6);
+    ASSERT_STREQ(std::string{split[0]}.c_str(), "employees");
+    ASSERT_STREQ(std::string{split[1]}.c_str(), "find");
+    ASSERT_STREQ(std::string{split[2]}.c_str(), "lowerBound");
+    ASSERT_STREQ(std::string{split[3]}.c_str(), "{lowerBound}");
+    ASSERT_STREQ(std::string{split[4]}.c_str(), "upperBound");
+    ASSERT_STREQ(std::string{split[5]}.c_str(), "{upperBound}");
+}
