@@ -195,3 +195,18 @@ TEST_F(RestControllerEmployee, Add) {
     ASSERT_EQ(addedEmployee->Name, "John");
     ASSERT_EQ(addedEmployee->Salary, 6000);
 }
+
+
+TEST_F(RestControllerEmployee, WrongPath) {
+    auto req = Waffle::HttpRequest{
+        .Method = "GET",
+        .Path = "/money",
+        .Body = R"({"reason": "i need money plz"})",
+    };
+
+    const Waffle::HttpResponse response = ProcessRequest(*EmployeeController, req);
+    ASSERT_EQ(response.StatusCode, 500);
+    ASSERT_EQ(response.Body, R"({
+    "reason": "Can't handle GET request with path \"/money\""
+})");
+}
