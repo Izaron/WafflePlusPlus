@@ -22,7 +22,7 @@ public:
     {}
 
 ## for method in struct.methods
-    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); };
+    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); }
 ## endfor
 
 private:
@@ -40,7 +40,7 @@ private:
         Object object_;
 
 ## for method in struct.methods
-        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); };
+        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); }
 ## endfor
     };
 
@@ -62,7 +62,7 @@ public:
     {}
 
 ## for method in struct.methods
-    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); };
+    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); }
 ## endfor
 
 private:
@@ -80,7 +80,7 @@ private:
         Object& object_;
 
 ## for method in struct.methods
-        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); };
+        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); }
 ## endfor
     };
 
@@ -103,7 +103,7 @@ public:
 
 ## for method in struct.methods
 {% if method.qualifiers == " const" %}
-    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); };
+    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); }
 {% endif %}
 ## endfor
 
@@ -125,7 +125,7 @@ private:
 
 ## for method in struct.methods
 {% if method.qualifiers == " const" %}
-        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); };
+        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); }
 {% endif %}
 ## endfor
     };

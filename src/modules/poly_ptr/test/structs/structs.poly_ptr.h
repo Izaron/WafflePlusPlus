@@ -20,11 +20,11 @@ public:
         : object_ptr_{std::make_unique<object_impl<Object>>(std::move(object))}
     {}
 
-    void Forward(double distance) { return object_ptr_->Forward(distance); };
-    void Turn(double degrees) { return object_ptr_->Turn(degrees); };
-    void GoTo(double x, double y) { return object_ptr_->GoTo(x, y); };
-    double GetX() const { return object_ptr_->GetX(); };
-    double GetY() const { return object_ptr_->GetY(); };
+    void Forward(double distance) { return object_ptr_->Forward(distance); }
+    void Turn(double degrees) { return object_ptr_->Turn(degrees); }
+    void GoTo(double x, double y) { return object_ptr_->GoTo(x, y); }
+    double GetX() const { return object_ptr_->GetX(); }
+    double GetY() const { return object_ptr_->GetY(); }
 
 private:
     struct object_interface {
@@ -42,11 +42,11 @@ private:
         object_impl(Object&& object) : object_{std::move(object)} {}
         Object object_;
 
-        void Forward(double distance) override { return object_.Forward(distance); };
-        void Turn(double degrees) override { return object_.Turn(degrees); };
-        void GoTo(double x, double y) override { return object_.GoTo(x, y); };
-        double GetX() const override { return object_.GetX(); };
-        double GetY() const override { return object_.GetY(); };
+        void Forward(double distance) override { return object_.Forward(distance); }
+        void Turn(double degrees) override { return object_.Turn(degrees); }
+        void GoTo(double x, double y) override { return object_.GoTo(x, y); }
+        double GetX() const override { return object_.GetX(); }
+        double GetY() const override { return object_.GetY(); }
     };
 
     std::unique_ptr<object_interface> object_ptr_;
@@ -60,7 +60,7 @@ public:
         : object_ptr_{std::make_unique<object_impl<Object>>(std::move(object))}
     {}
 
-    std::string String() const { return object_ptr_->String(); };
+    std::string String() const { return object_ptr_->String(); }
 
 private:
     struct object_interface {
@@ -74,7 +74,7 @@ private:
         object_impl(Object&& object) : object_{std::move(object)} {}
         Object object_;
 
-        std::string String() const override { return object_.String(); };
+        std::string String() const override { return object_.String(); }
     };
 
     std::unique_ptr<object_interface> object_ptr_;
@@ -92,11 +92,11 @@ public:
         : object_ptr_{std::make_unique<object_impl<Object>>(object)}
     {}
 
-    void Forward(double distance) { return object_ptr_->Forward(distance); };
-    void Turn(double degrees) { return object_ptr_->Turn(degrees); };
-    void GoTo(double x, double y) { return object_ptr_->GoTo(x, y); };
-    double GetX() const { return object_ptr_->GetX(); };
-    double GetY() const { return object_ptr_->GetY(); };
+    void Forward(double distance) { return object_ptr_->Forward(distance); }
+    void Turn(double degrees) { return object_ptr_->Turn(degrees); }
+    void GoTo(double x, double y) { return object_ptr_->GoTo(x, y); }
+    double GetX() const { return object_ptr_->GetX(); }
+    double GetY() const { return object_ptr_->GetY(); }
 
 private:
     struct object_interface {
@@ -114,11 +114,11 @@ private:
         object_impl(Object& object) : object_{object} {}
         Object& object_;
 
-        void Forward(double distance) override { return object_.Forward(distance); };
-        void Turn(double degrees) override { return object_.Turn(degrees); };
-        void GoTo(double x, double y) override { return object_.GoTo(x, y); };
-        double GetX() const override { return object_.GetX(); };
-        double GetY() const override { return object_.GetY(); };
+        void Forward(double distance) override { return object_.Forward(distance); }
+        void Turn(double degrees) override { return object_.Turn(degrees); }
+        void GoTo(double x, double y) override { return object_.GoTo(x, y); }
+        double GetX() const override { return object_.GetX(); }
+        double GetY() const override { return object_.GetY(); }
     };
 
     std::unique_ptr<object_interface> object_ptr_;
@@ -132,7 +132,7 @@ public:
         : object_ptr_{std::make_unique<object_impl<Object>>(object)}
     {}
 
-    std::string String() const { return object_ptr_->String(); };
+    std::string String() const { return object_ptr_->String(); }
 
 private:
     struct object_interface {
@@ -146,7 +146,7 @@ private:
         object_impl(Object& object) : object_{object} {}
         Object& object_;
 
-        std::string String() const override { return object_.String(); };
+        std::string String() const override { return object_.String(); }
     };
 
     std::unique_ptr<object_interface> object_ptr_;
@@ -164,8 +164,8 @@ public:
         : object_ptr_{std::make_unique<object_impl<Object>>(object)}
     {}
 
-    double GetX() const { return object_ptr_->GetX(); };
-    double GetY() const { return object_ptr_->GetY(); };
+    double GetX() const { return object_ptr_->GetX(); }
+    double GetY() const { return object_ptr_->GetY(); }
 
 private:
     struct object_interface {
@@ -180,8 +180,8 @@ private:
         object_impl(const Object& object) : object_{object} {}
         const Object& object_;
 
-        double GetX() const override { return object_.GetX(); };
-        double GetY() const override { return object_.GetY(); };
+        double GetX() const override { return object_.GetX(); }
+        double GetY() const override { return object_.GetY(); }
     };
 
     const std::unique_ptr<const object_interface> object_ptr_;
@@ -195,7 +195,7 @@ public:
         : object_ptr_{std::make_unique<object_impl<Object>>(object)}
     {}
 
-    std::string String() const { return object_ptr_->String(); };
+    std::string String() const { return object_ptr_->String(); }
 
 private:
     struct object_interface {
@@ -209,7 +209,7 @@ private:
         object_impl(const Object& object) : object_{object} {}
         const Object& object_;
 
-        std::string String() const override { return object_.String(); };
+        std::string String() const override { return object_.String(); }
     };
 
     const std::unique_ptr<const object_interface> object_ptr_;
