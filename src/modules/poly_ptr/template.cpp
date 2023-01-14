@@ -8,6 +8,41 @@
 
 namespace Waffle {
 
+namespace Impl {
+
+template<typename T>
+struct Traits;
+
+## for struct in structs
+template<>
+struct Traits<{{ struct.qualified_name }}> {
+    struct Ops {
+## for method in struct.methods
+{% if method.signature == "" %}
+        {{ method.return_type }}(*{{ method.name }}Func)(void* ptr);
+{% else %}
+        {{ method.return_type }}(*{{ method.name }}Func)(void* ptr, {{ method.signature }});
+{% endif %}
+## endfor
+        void(*Destruct)(void* ptr);
+    };
+
+    template<typename Object>
+    static constexpr Ops OpsFor {
+## for method in struct.methods
+{% if method.signature == "" %}
+        .{{ method.name }}Func = [](void* ptr) { return static_cast<Object*>(ptr)->{{ method.name }}(); },
+{% else %}
+        .{{ method.name }}Func = [](void* ptr, {{ method.signature }}) { return static_cast<Object*>(ptr)->{{ method.name }}({{ method.args }}); },
+{% endif %}
+## endfor
+        .Destruct = [](void* ptr) { delete static_cast<Object*>(ptr); }
+    };
+};
+
+## endfor
+} // namespace Impl
+
 // ------------- declare poly_obj ------------- //
 template<typename T>
 class poly_obj;
@@ -17,34 +52,26 @@ template<>
 class poly_obj<{{ struct.qualified_name }}> {
 public:
     template<typename Object>
-    poly_obj(Object&& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(std::move(object))}
-    {}
+    poly_obj(Object&& object) {
+        Obj_ = std::aligned_alloc(alignof(Object), sizeof(Object));
+        new (Obj_) Object{std::move(object)};
+        Ops_ = &Impl::Traits<{{ struct.qualified_name }}>::OpsFor<Object>;
+    }
+    ~poly_obj() {
+        Ops_->Destruct(Obj_);
+    }
 
 ## for method in struct.methods
-    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); }
+{% if method.signature == "" %}
+    {{ method.return_type }} {{ method.name }}(){{ method.qualifiers }} { return Ops_->{{ method.name }}Func(Obj_); }
+{% else %}
+    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return Ops_->{{ method.name }}Func(Obj_, {{ method.args }}); }
+{% endif %}
 ## endfor
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-## for method in struct.methods
-        virtual {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} = 0;
-## endfor
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(Object&& object) : object_{std::move(object)} {}
-        Object object_;
-
-## for method in struct.methods
-        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); }
-## endfor
-    };
-
-    std::unique_ptr<object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<{{ struct.qualified_name }}>::Ops* Ops_;
 };
 
 ## endfor
@@ -57,34 +84,22 @@ template<>
 class poly_ref<{{ struct.qualified_name }}> {
 public:
     template<typename Object>
-    poly_ref(Object& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
-    {}
+    poly_ref(Object& object) {
+        Obj_ = &object;
+        Ops_ = &Impl::Traits<{{ struct.qualified_name }}>::OpsFor<Object>;
+    }
 
 ## for method in struct.methods
-    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); }
+{% if method.signature == "" %}
+    {{ method.return_type }} {{ method.name }}(){{ method.qualifiers }} { return Ops_->{{ method.name }}Func(Obj_); }
+{% else %}
+    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return Ops_->{{ method.name }}Func(Obj_, {{ method.args }}); }
+{% endif %}
 ## endfor
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-## for method in struct.methods
-        virtual {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} = 0;
-## endfor
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(Object& object) : object_{object} {}
-        Object& object_;
-
-## for method in struct.methods
-        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); }
-## endfor
-    };
-
-    std::unique_ptr<object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<{{ struct.qualified_name }}>::Ops* Ops_;
 };
 
 ## endfor
@@ -97,40 +112,24 @@ template<>
 class const_poly_ref<{{ struct.qualified_name }}> {
 public:
     template<typename Object>
-    const_poly_ref(const Object& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
-    {}
+    const_poly_ref(const Object& object) {
+        Obj_ = &object;
+        Ops_ = &Impl::Traits<{{ struct.qualified_name }}>::OpsFor<Object>;
+    }
 
 ## for method in struct.methods
 {% if method.qualifiers == " const" %}
-    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return object_ptr_->{{ method.name }}({{ method.args }}); }
+{% if method.signature == "" %}
+    {{ method.return_type }} {{ method.name }}(){{ method.qualifiers }} { return Ops_->{{ method.name }}Func(Obj_); }
+{% else %}
+    {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} { return Ops_->{{ method.name }}Func(Obj_, {{ method.args }}); }
+{% endif %}
 {% endif %}
 ## endfor
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-## for method in struct.methods
-{% if method.qualifiers == " const" %}
-        virtual {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} = 0;
-{% endif %}
-## endfor
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(const Object& object) : object_{object} {}
-        const Object& object_;
-
-## for method in struct.methods
-{% if method.qualifiers == " const" %}
-        {{ method.return_type }} {{ method.name }}({{ method.signature }}){{ method.qualifiers }} override { return object_.{{ method.name }}({{ method.args }}); }
-{% endif %}
-## endfor
-    };
-
-    const std::unique_ptr<const object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<{{ struct.qualified_name }}>::Ops* Ops_;
 };
 
 ## endfor

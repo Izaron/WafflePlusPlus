@@ -8,6 +8,49 @@
 
 namespace Waffle {
 
+namespace Impl {
+
+template<typename T>
+struct Traits;
+
+template<>
+struct Traits<model::Robot> {
+    struct Ops {
+        void(*ForwardFunc)(void* ptr, double distance);
+        void(*TurnFunc)(void* ptr, double degrees);
+        void(*GoToFunc)(void* ptr, double x, double y);
+        double(*GetXFunc)(void* ptr);
+        double(*GetYFunc)(void* ptr);
+        void(*Destruct)(void* ptr);
+    };
+
+    template<typename Object>
+    static constexpr Ops OpsFor {
+        .ForwardFunc = [](void* ptr, double distance) { return static_cast<Object*>(ptr)->Forward(distance); },
+        .TurnFunc = [](void* ptr, double degrees) { return static_cast<Object*>(ptr)->Turn(degrees); },
+        .GoToFunc = [](void* ptr, double x, double y) { return static_cast<Object*>(ptr)->GoTo(x, y); },
+        .GetXFunc = [](void* ptr) { return static_cast<Object*>(ptr)->GetX(); },
+        .GetYFunc = [](void* ptr) { return static_cast<Object*>(ptr)->GetY(); },
+        .Destruct = [](void* ptr) { delete static_cast<Object*>(ptr); }
+    };
+};
+
+template<>
+struct Traits<model::Stringer> {
+    struct Ops {
+        std::string(*StringFunc)(void* ptr);
+        void(*Destruct)(void* ptr);
+    };
+
+    template<typename Object>
+    static constexpr Ops OpsFor {
+        .StringFunc = [](void* ptr) { return static_cast<Object*>(ptr)->String(); },
+        .Destruct = [](void* ptr) { delete static_cast<Object*>(ptr); }
+    };
+};
+
+} // namespace Impl
+
 // ------------- declare poly_obj ------------- //
 template<typename T>
 class poly_obj;
@@ -16,68 +59,44 @@ template<>
 class poly_obj<model::Robot> {
 public:
     template<typename Object>
-    poly_obj(Object&& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(std::move(object))}
-    {}
+    poly_obj(Object&& object) {
+        Obj_ = std::aligned_alloc(alignof(Object), sizeof(Object));
+        new (Obj_) Object{std::move(object)};
+        Ops_ = &Impl::Traits<model::Robot>::OpsFor<Object>;
+    }
+    ~poly_obj() {
+        Ops_->Destruct(Obj_);
+    }
 
-    void Forward(double distance) { return object_ptr_->Forward(distance); }
-    void Turn(double degrees) { return object_ptr_->Turn(degrees); }
-    void GoTo(double x, double y) { return object_ptr_->GoTo(x, y); }
-    double GetX() const { return object_ptr_->GetX(); }
-    double GetY() const { return object_ptr_->GetY(); }
+    void Forward(double distance) { return Ops_->ForwardFunc(Obj_, distance); }
+    void Turn(double degrees) { return Ops_->TurnFunc(Obj_, degrees); }
+    void GoTo(double x, double y) { return Ops_->GoToFunc(Obj_, x, y); }
+    double GetX() const { return Ops_->GetXFunc(Obj_); }
+    double GetY() const { return Ops_->GetYFunc(Obj_); }
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-        virtual void Forward(double distance) = 0;
-        virtual void Turn(double degrees) = 0;
-        virtual void GoTo(double x, double y) = 0;
-        virtual double GetX() const = 0;
-        virtual double GetY() const = 0;
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(Object&& object) : object_{std::move(object)} {}
-        Object object_;
-
-        void Forward(double distance) override { return object_.Forward(distance); }
-        void Turn(double degrees) override { return object_.Turn(degrees); }
-        void GoTo(double x, double y) override { return object_.GoTo(x, y); }
-        double GetX() const override { return object_.GetX(); }
-        double GetY() const override { return object_.GetY(); }
-    };
-
-    std::unique_ptr<object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<model::Robot>::Ops* Ops_;
 };
 
 template<>
 class poly_obj<model::Stringer> {
 public:
     template<typename Object>
-    poly_obj(Object&& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(std::move(object))}
-    {}
+    poly_obj(Object&& object) {
+        Obj_ = std::aligned_alloc(alignof(Object), sizeof(Object));
+        new (Obj_) Object{std::move(object)};
+        Ops_ = &Impl::Traits<model::Stringer>::OpsFor<Object>;
+    }
+    ~poly_obj() {
+        Ops_->Destruct(Obj_);
+    }
 
-    std::string String() const { return object_ptr_->String(); }
+    std::string String() const { return Ops_->StringFunc(Obj_); }
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-        virtual std::string String() const = 0;
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(Object&& object) : object_{std::move(object)} {}
-        Object object_;
-
-        std::string String() const override { return object_.String(); }
-    };
-
-    std::unique_ptr<object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<model::Stringer>::Ops* Ops_;
 };
 
 // ------------- declare poly_ref ------------- //
@@ -88,68 +107,36 @@ template<>
 class poly_ref<model::Robot> {
 public:
     template<typename Object>
-    poly_ref(Object& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
-    {}
+    poly_ref(Object& object) {
+        Obj_ = &object;
+        Ops_ = &Impl::Traits<model::Robot>::OpsFor<Object>;
+    }
 
-    void Forward(double distance) { return object_ptr_->Forward(distance); }
-    void Turn(double degrees) { return object_ptr_->Turn(degrees); }
-    void GoTo(double x, double y) { return object_ptr_->GoTo(x, y); }
-    double GetX() const { return object_ptr_->GetX(); }
-    double GetY() const { return object_ptr_->GetY(); }
+    void Forward(double distance) { return Ops_->ForwardFunc(Obj_, distance); }
+    void Turn(double degrees) { return Ops_->TurnFunc(Obj_, degrees); }
+    void GoTo(double x, double y) { return Ops_->GoToFunc(Obj_, x, y); }
+    double GetX() const { return Ops_->GetXFunc(Obj_); }
+    double GetY() const { return Ops_->GetYFunc(Obj_); }
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-        virtual void Forward(double distance) = 0;
-        virtual void Turn(double degrees) = 0;
-        virtual void GoTo(double x, double y) = 0;
-        virtual double GetX() const = 0;
-        virtual double GetY() const = 0;
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(Object& object) : object_{object} {}
-        Object& object_;
-
-        void Forward(double distance) override { return object_.Forward(distance); }
-        void Turn(double degrees) override { return object_.Turn(degrees); }
-        void GoTo(double x, double y) override { return object_.GoTo(x, y); }
-        double GetX() const override { return object_.GetX(); }
-        double GetY() const override { return object_.GetY(); }
-    };
-
-    std::unique_ptr<object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<model::Robot>::Ops* Ops_;
 };
 
 template<>
 class poly_ref<model::Stringer> {
 public:
     template<typename Object>
-    poly_ref(Object& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
-    {}
+    poly_ref(Object& object) {
+        Obj_ = &object;
+        Ops_ = &Impl::Traits<model::Stringer>::OpsFor<Object>;
+    }
 
-    std::string String() const { return object_ptr_->String(); }
+    std::string String() const { return Ops_->StringFunc(Obj_); }
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-        virtual std::string String() const = 0;
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(Object& object) : object_{object} {}
-        Object& object_;
-
-        std::string String() const override { return object_.String(); }
-    };
-
-    std::unique_ptr<object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<model::Stringer>::Ops* Ops_;
 };
 
 // ------------- declare const_poly_ref ------------- //
@@ -160,59 +147,33 @@ template<>
 class const_poly_ref<model::Robot> {
 public:
     template<typename Object>
-    const_poly_ref(const Object& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
-    {}
+    const_poly_ref(const Object& object) {
+        Obj_ = &object;
+        Ops_ = &Impl::Traits<model::Robot>::OpsFor<Object>;
+    }
 
-    double GetX() const { return object_ptr_->GetX(); }
-    double GetY() const { return object_ptr_->GetY(); }
+    double GetX() const { return Ops_->GetXFunc(Obj_); }
+    double GetY() const { return Ops_->GetYFunc(Obj_); }
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-        virtual double GetX() const = 0;
-        virtual double GetY() const = 0;
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(const Object& object) : object_{object} {}
-        const Object& object_;
-
-        double GetX() const override { return object_.GetX(); }
-        double GetY() const override { return object_.GetY(); }
-    };
-
-    const std::unique_ptr<const object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<model::Robot>::Ops* Ops_;
 };
 
 template<>
 class const_poly_ref<model::Stringer> {
 public:
     template<typename Object>
-    const_poly_ref(const Object& object)
-        : object_ptr_{std::make_unique<object_impl<Object>>(object)}
-    {}
+    const_poly_ref(const Object& object) {
+        Obj_ = &object;
+        Ops_ = &Impl::Traits<model::Stringer>::OpsFor<Object>;
+    }
 
-    std::string String() const { return object_ptr_->String(); }
+    std::string String() const { return Ops_->StringFunc(Obj_); }
 
 private:
-    struct object_interface {
-        virtual ~object_interface() = default;
-
-        virtual std::string String() const = 0;
-    };
-
-    template<typename Object>
-    struct object_impl : object_interface {
-        object_impl(const Object& object) : object_{object} {}
-        const Object& object_;
-
-        std::string String() const override { return object_.String(); }
-    };
-
-    const std::unique_ptr<const object_interface> object_ptr_;
+    void* Obj_;
+    const Impl::Traits<model::Stringer>::Ops* Ops_;
 };
 
 // ------------- declare poly_ptr ------------- //
