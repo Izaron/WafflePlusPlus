@@ -9,6 +9,8 @@ public:
     Counter();
 
     int Value() const;
+
+    // @slot
     void SetValue(int value);
 
     // @signal

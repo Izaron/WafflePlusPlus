@@ -42,12 +42,30 @@ private:
     void AddStructData(const StructData& data) {
         auto& structJson = DataJson_["structs"].emplace_back();
         structJson["qualified_name"] = StringUtil::QualifiedName(*data.Decl);
-        for (const auto* signalDecl : data.Signals) {
-            auto& signalJson = structJson["signals"].emplace_back();
-            signalJson["name"] = signalDecl->getNameAsString();
-            signalJson["signature"] = StringUtil::GetSignature(*signalDecl);
-            signalJson["args"] = StringUtil::JoinArgs(*signalDecl);
+        AddMethodJsons(structJson, data.Signals, "signals", "grouped_signals");
+        AddMethodJsons(structJson, data.Slots, "slots", "grouped_slots");
+    }
+
+    void AddMethodJsons(inja::json& structJson, std::vector<clang::CXXMethodDecl*> decls,
+                        std::string_view name, std::string_view groupedName) {
+        inja::json& arr = structJson[name];
+        for (const auto* decl : decls) {
+            arr.emplace_back(BuildMethodJson(*decl));
         }
+
+        inja::json& grouped = structJson[groupedName];
+        for (const auto& j : arr) {
+            grouped[j["types"].get<std::string>()].emplace_back(j);
+        }
+    }
+
+    inja::json BuildMethodJson(const clang::CXXMethodDecl& decl) {
+        inja::json json;
+        json["name"] = decl.getNameAsString();
+        json["signature"] = StringUtil::GetSignature(decl);
+        json["args"] = StringUtil::JoinArgs(decl);
+        json["types"] = StringUtil::JoinTypes(decl);
+        return json;
     }
 
 private:

@@ -18,6 +18,10 @@ std::string GetSignature(const clang::CXXMethodDecl& methodDecl);
 // void foo(int x, double y, std::string z) -> "x, y, z"
 std::string JoinArgs(const clang::CXXMethodDecl& methodDecl);
 
+// void foo(int x, double y, std::string z) -> "int, double, std::string"
+std::string JoinTypes(const clang::CXXMethodDecl& methodDecl);
+
+
 // "/a/b/c/foo.cpp" -> "foo.cpp"
 std::string_view AfterLastSlash(std::string_view s);
 

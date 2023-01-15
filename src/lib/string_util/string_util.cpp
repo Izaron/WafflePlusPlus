@@ -62,6 +62,12 @@ std::string JoinArgs(const clang::CXXMethodDecl& methodDecl) {
     });
 }
 
+std::string JoinTypes(const clang::CXXMethodDecl& methodDecl) {
+    return JoinParams(methodDecl, [](const auto& param) {
+        return param.getType().getAsString();
+    });
+}
+
 std::string_view AfterLastSlash(std::string_view s) {
     if (const auto pos = s.find_last_of('/'); pos != std::string_view::npos) {
         s = s.substr(pos + 1);

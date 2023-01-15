@@ -9,7 +9,10 @@ namespace Waffle::Signals {
 
 namespace {
 
+constexpr std::string_view SIGNAL_BASE_CLASS_NAME = "Waffle::SignalBase";
+
 constexpr std::string_view COMMAND_SIGNAL = "signal";
+constexpr std::string_view COMMAND_SLOTS = "slots";
 
 class Collector : public clang::RecursiveASTVisitor<Collector> {
 public:
@@ -28,6 +31,8 @@ public:
         for (const auto& method : decl->methods()) {
             if (ParseCommentData(Ctx_, *method)->FindByName(COMMAND_SIGNAL)) {
                 data.Signals.emplace_back(method);
+            } else if (ParseCommentData(Ctx_, *method)->FindByName(COMMAND_SLOTS)) {
+                data.Slots.emplace_back(method);
             }
         }
         return true;
@@ -41,7 +46,7 @@ private:
     bool IsDerivedFromSignalBase(clang::CXXRecordDecl& decl) {
         for (const auto& base : decl.bases()) {
             const auto* type = base.getType().getTypePtr()->getUnqualifiedDesugaredType();
-            if (GetTypeName(*type) == "Waffle::SignalBase") {
+            if (GetTypeName(*type) == SIGNAL_BASE_CLASS_NAME) {
                 return true;
             }
         }
@@ -69,7 +74,7 @@ StructDatas Collect(clang::ASTContext& ctx) {
 }
 
 std::vector<std::string_view> Commands() {
-    return {COMMAND_SIGNAL};
+    return {COMMAND_SIGNAL, COMMAND_SLOTS};
 }
 
 } // namespace Waffle::Signals
