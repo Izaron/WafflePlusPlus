@@ -1,6 +1,7 @@
 #include "string_util.h"
 
-#include <clang/AST/Decl.h>
+#include <sstream>
+#include <clang/AST/DeclCXX.h>
 
 namespace Waffle::StringUtil {
 
@@ -28,6 +29,18 @@ std::vector<std::string_view> Split(std::string_view s, Func IsDelim) {
     return result;
 }
 
+template<typename Func>
+std::string JoinParams(const clang::CXXMethodDecl& methodDecl, Func func) {
+    std::stringstream ss;
+    for (const auto param : methodDecl.parameters()) {
+        if (ss.rdbuf()->in_avail()) { // aka `if (!ss.str())`
+            ss << ", ";
+        }
+        ss << func(*param);
+    }
+    return ss.str();
+}
+
 } // namespace
 
 std::string QualifiedName(const clang::NamedDecl& decl) {
@@ -35,6 +48,18 @@ std::string QualifiedName(const clang::NamedDecl& decl) {
     llvm::raw_string_ostream stream{name};
     decl.printQualifiedName(stream);
     return name;
+}
+
+std::string GetSignature(const clang::CXXMethodDecl& methodDecl) {
+    return JoinParams(methodDecl, [](const auto& param) {
+        return param.getType().getAsString() + " " + param.getNameAsString();
+    });
+}
+
+std::string JoinArgs(const clang::CXXMethodDecl& methodDecl) {
+    return JoinParams(methodDecl, [](const auto& param) {
+        return param.getNameAsString();
+    });
 }
 
 std::string_view AfterLastSlash(std::string_view s) {

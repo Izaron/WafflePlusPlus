@@ -5,11 +5,18 @@
 
 namespace clang {
     class NamedDecl;
+    class CXXMethodDecl;
 } // namespace clang
 
 namespace Waffle::StringUtil {
 
 std::string QualifiedName(const clang::NamedDecl& decl);
+
+// void foo(int x, double y, std::string z) -> "int x, double y, std::string z"
+std::string GetSignature(const clang::CXXMethodDecl& methodDecl);
+
+// void foo(int x, double y, std::string z) -> "x, y, z"
+std::string JoinArgs(const clang::CXXMethodDecl& methodDecl);
 
 // "/a/b/c/foo.cpp" -> "foo.cpp"
 std::string_view AfterLastSlash(std::string_view s);
