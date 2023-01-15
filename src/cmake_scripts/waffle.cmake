@@ -26,15 +26,18 @@ function(waffle_generate WAFFLEC_BINARY HEADER GENERATED_FILES)
   string(REPLACE "/" "_" HEADER_STR ${HEADER_STR})
   add_library(${HEADER_STR} "${HEADER}.cpp")
 
+  # defining the output directory
+  string(REGEX MATCH "^(${CMAKE_CURRENT_SOURCE_DIR}|${CMAKE_CURRENT_BINARY_DIR})" OUTPUT_DIR "${GENERATED_FILES}")
+
   # add command to codegen files
   add_custom_command(
     OUTPUT
       ${GENERATED_FILES}
     COMMAND
-      ${WAFFLEC_BINARY}
-      ${CMAKE_CURRENT_BINARY_DIR}
-      "${HEADER}.cpp"
-      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${WAFFLEC_BINARY}            # argv[0] == wafllec binary
+      ${CMAKE_CURRENT_BINARY_DIR}  # argv[1] == current binary dir
+      "${HEADER}.cpp"              # argv[2] == path to source .cpp file
+      ${OUTPUT_DIR}                # argv[3] == dir where to save generated files
       > "${HEADER}.wafflec.out" 2> "${HEADER}.wafflec.err"
     DEPENDS
       ${WAFFLEC_BINARY} ${HEADER_STR}
