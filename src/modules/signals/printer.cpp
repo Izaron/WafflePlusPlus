@@ -28,11 +28,26 @@ public:
 
         DataJson_["source_file"] = StringUtil::RemoveLastExt(inFile);
 
+        for (const auto& data : Datas_) {
+            AddStructData(data);
+        }
         llvm::errs() << "GOT DATA " << DataJson_.dump(4) << "\n";
 
         inja::Environment env;
         env.set_trim_blocks(true);
         printer << env.render(TEMPLATE, DataJson_);
+    }
+
+private:
+    void AddStructData(const StructData& data) {
+        auto& structJson = DataJson_["structs"].emplace_back();
+        structJson["qualified_name"] = StringUtil::QualifiedName(*data.Decl);
+        for (const auto* signalDecl : data.Signals) {
+            auto& signalJson = structJson["signals"].emplace_back();
+            signalJson["name"] = signalDecl->getNameAsString();
+            signalJson["signature"] = StringUtil::GetSignature(*signalDecl);
+            signalJson["args"] = StringUtil::JoinArgs(*signalDecl);
+        }
     }
 
 private:

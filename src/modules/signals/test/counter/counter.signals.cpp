@@ -13,3 +13,6 @@ inline SignalBase::~SignalBase() {
 // ???
 
 } // namespace Waffle
+
+void model::Counter::ValueChanged(int newValue) {
+}

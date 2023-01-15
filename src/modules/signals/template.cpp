@@ -13,3 +13,10 @@ inline SignalBase::~SignalBase() {
 // ???
 
 } // namespace Waffle
+## for struct in structs
+## for signal in struct.signals
+
+void {{ struct.qualified_name }}::{{ signal.name }}({{ signal.signature }}) {
+}
+## endfor
+## endfor
