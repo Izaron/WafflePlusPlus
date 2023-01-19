@@ -31,7 +31,7 @@ public:
         for (const auto& data : Datas_) {
             AddStructData(data);
         }
-        llvm::errs() << "GOT DATA " << DataJson_.dump(4) << "\n";
+        llvm::errs() << "render template with data: " << DataJson_.dump(4) << "\n";
 
         inja::Environment env;
         env.set_trim_blocks(true);

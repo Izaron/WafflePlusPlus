@@ -31,7 +31,7 @@ public:
             AddRestController(data);
         }
 
-        llvm::errs() << "GOT DATA " << DataJson_.dump(4) << "\n";
+        llvm::errs() << "render template with data: " << DataJson_.dump(4) << "\n";
 
         inja::Environment env;
         env.add_callback("list_args", /*num_args=*/1, [](inja::Arguments& args) {

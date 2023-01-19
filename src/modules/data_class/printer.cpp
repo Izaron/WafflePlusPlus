@@ -40,7 +40,7 @@ public:
             AddDataClass(data);
         }
 
-        llvm::errs() << DataJson_.dump(4) << "\n";
+        llvm::errs() << "render template with data: " << DataJson_.dump(4) << "\n";
 
         inja::Environment env;
         env.set_trim_blocks(true);
